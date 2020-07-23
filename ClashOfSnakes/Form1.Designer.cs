@@ -1,6 +1,6 @@
 ﻿namespace ClashOfSnakes
 {
-    partial class Form1
+    partial class GameWindow
     {
         /// <summary>
         /// Required designer variable.
@@ -28,10 +28,20 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // GameWindow
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(684, 461);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.Name = "GameWindow";
+            this.Text = "Clash of Snakes";
+            this.Load += new System.EventHandler(this.GameWindow_Load);
+            this.ResumeLayout(false);
+
         }
 
         #endregion

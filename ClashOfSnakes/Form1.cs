@@ -10,11 +10,17 @@ using System.Windows.Forms;
 
 namespace ClashOfSnakes
 {
-    public partial class Form1 : Form
+    public partial class GameWindow : Form
     {
-        public Form1()
+        public GameWindow()
         {
             InitializeComponent();
+        }
+
+        private void GameWindow_Load(object sender, EventArgs e)
+        {
+            this.ClientSize = new Size(1000, 900);
+            this.BackColor = Color.Black;
         }
     }
 }
