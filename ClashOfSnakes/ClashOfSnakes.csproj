@@ -65,6 +65,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -78,6 +79,51 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeA1.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeA2.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeA3.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeA4.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeA5.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeA6.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeB1.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeB2.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeB3.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeB4.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeB5.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\snakeB6.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ground.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\food.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

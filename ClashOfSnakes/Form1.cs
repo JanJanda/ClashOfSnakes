@@ -21,6 +21,7 @@ namespace ClashOfSnakes
         {
             this.ClientSize = new Size(1000, 900);
             this.BackColor = Color.Black;
+            this.Icon = Properties.Resources.icon;
         }
     }
 }
