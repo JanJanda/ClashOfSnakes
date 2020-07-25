@@ -35,11 +35,13 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(684, 461);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
             this.Name = "GameWindow";
             this.Text = "Clash of Snakes";
             this.Load += new System.EventHandler(this.GameWindow_Load);
+            this.Paint += new System.Windows.Forms.PaintEventHandler(this.GameWindow_Paint);
             this.ResumeLayout(false);
 
         }
