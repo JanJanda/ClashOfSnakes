@@ -124,6 +124,30 @@
   <data name="ground" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ground.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="headA1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\headA1.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="headA2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\headA2.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="headA3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\headA3.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="headA4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\headA4.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="headB1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\headB1.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="headB2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\headB2.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="headB3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\headB3.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="headB4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\headB4.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="icon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\icon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -162,5 +186,29 @@
   </data>
   <data name="snakeB6" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\snakeB6.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tailA1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tailA1.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tailA2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tailA2.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tailA3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tailA3.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tailA4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tailA4.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tailB1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tailB1.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tailB2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tailB2.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tailB3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tailB3.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="tailB4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\tailB4.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

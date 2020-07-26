@@ -23,6 +23,7 @@ namespace ClashOfSnakes
         Label info;
         TextBox addr;
         Image ground = Properties.Resources.ground;
+        SinglePGame game;
 
         public GameWindow()
         {
@@ -121,12 +122,13 @@ namespace ClashOfSnakes
 
         private void Create_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void Single_Click(object sender, EventArgs e)
         {
-
+            game = new SinglePGame(mapWidth, mapHeight, blockEdge);
+            this.Invalidate();
         }
 
         private void GameWindow_Load(object sender, EventArgs e)
@@ -140,6 +142,7 @@ namespace ClashOfSnakes
         private void GameWindow_Paint(object sender, PaintEventArgs e)
         {
             makeGround(e.Graphics);
+            game?.Paint(e.Graphics);
         }
     }
 }
