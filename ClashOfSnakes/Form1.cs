@@ -24,6 +24,8 @@ namespace ClashOfSnakes
         TextBox addr;
         Image ground = Properties.Resources.ground;
         SinglePGame game;
+        Direction direction;
+        Timer t1;
 
         public GameWindow()
         {
@@ -47,7 +49,7 @@ namespace ClashOfSnakes
         }
 
         /// <summary>
-        /// Makes buttons, labels and textbox
+        /// Makes buttons, labels, textbox and timer
         /// </summary>
         private void makeUI()
         {
@@ -97,6 +99,10 @@ namespace ClashOfSnakes
             info.ForeColor = Color.Beige;
             info.Visible = false;
             Controls.Add(info);
+
+            t1 = new Timer();
+            t1.Interval = 150;
+            t1.Tick += T1_Tick;
         }
 
         private void configButton(Button b)
@@ -115,6 +121,12 @@ namespace ClashOfSnakes
             l.Visible = false;
         }
 
+        private void T1_Tick(object sender, EventArgs e)
+        {
+            L1.Text = game?.MakeMove(direction).ToString();
+            this.Invalidate();
+        }
+
         private void Connect_Click(object sender, EventArgs e)
         {
             
@@ -128,6 +140,9 @@ namespace ClashOfSnakes
         private void Single_Click(object sender, EventArgs e)
         {
             game = new SinglePGame(mapWidth, mapHeight, blockEdge);
+            L1.Visible = true;
+            direction = Direction.right;
+            t1.Start();
             this.Invalidate();
         }
 
@@ -136,13 +151,32 @@ namespace ClashOfSnakes
             this.ClientSize = new Size(mapWidth, mapHeight + 100);
             this.BackColor = Color.Black;
             this.Icon = Properties.Resources.icon;
-            makeUI();
+            makeUI();            
         }
 
         private void GameWindow_Paint(object sender, PaintEventArgs e)
         {
             makeGround(e.Graphics);
             game?.Paint(e.Graphics);
+        }
+
+        private void GameWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.W:
+                    direction = Direction.up;
+                    break;
+                case Keys.A:
+                    direction = Direction.left;
+                    break;
+                case Keys.S:
+                    direction = Direction.down;
+                    break;
+                case Keys.D:
+                    direction = Direction.right;
+                    break;
+            }
         }
     }
 }

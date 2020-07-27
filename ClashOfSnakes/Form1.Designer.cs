@@ -37,11 +37,13 @@
             this.ClientSize = new System.Drawing.Size(684, 461);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "GameWindow";
             this.Text = "Clash of Snakes";
             this.Load += new System.EventHandler(this.GameWindow_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.GameWindow_Paint);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameWindow_KeyDown);
             this.ResumeLayout(false);
 
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,6 +17,8 @@ namespace ClashOfSnakes
         readonly Food[,] mapf;
         Image food = Properties.Resources.food;
         Player playerA;
+        bool gameOver;
+        bool stretch;
 
         /// <summary>
         /// Creates new single player game
@@ -31,7 +34,7 @@ namespace ClashOfSnakes
             mapHeight = height / edge;
             blockEdge = edge;
             mapf = new Food[mapWidth, mapHeight];
-            placeAllFood();
+            placeAllFood();            
         }
 
         /// <summary>
@@ -45,12 +48,48 @@ namespace ClashOfSnakes
             {
                 int x = rnd.Next(mapWidth);
                 int y = rnd.Next(mapHeight);
-                if (!(x == 0 && y == 0) && !(x == 1 && y == 0) && !(x == mapWidth - 1 && y == mapHeight - 1) && !(x == mapWidth - 2 && y == mapHeight - 1) && mapf[x, y] == Food.nothing) //make sure that the food is not placed on initial positions of snakes or another food
+                if (!(x == 0 && y == 0) && !(x == 1 && y == 0) && !(x == 2 && y == 0) && !(x == mapWidth - 1 && y == mapHeight - 1) && !(x == mapWidth - 2 && y == mapHeight - 1) && !(x == mapWidth - 3 && y == mapHeight - 1) && mapf[x, y] == Food.nothing) //make sure that the food is not placed on initial positions of snakes or another food
                 {
                     mapf[x, y] = Food.food;
                     done++;
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds one piece of food
+        /// </summary>
+        private void addFood()
+        {
+            bool go = true;
+            Random rnd = new Random();
+            while (go)
+            {
+                int x = rnd.Next(mapWidth);
+                int y = rnd.Next(mapHeight);
+                if(!playerA.Occupies(x, y) && mapf[x, y] == Food.nothing)
+                {
+                    mapf[x, y] = Food.food;
+                    go = false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Makes one game move in the specified direction
+        /// </summary>
+        /// <param name="direc">The specified direction</param>
+        /// <returns></returns>
+        public int MakeMove(Direction direc)
+        {
+            if (!gameOver)
+            {
+                gameOver = playerA.Move(direc, stretch);
+                stretch = mapf[playerA.headX, playerA.headY] == Food.food;
+                if (mapf[playerA.headX, playerA.headY] == Food.food) addFood();
+                mapf[playerA.headX, playerA.headY] = Food.nothing;                                
+            }
+            return playerA.length - 3;
         }
 
         /// <summary>
