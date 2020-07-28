@@ -10,15 +10,15 @@ namespace ClashOfSnakes
 {
     class SinglePGame
     {
-        readonly int mapWidth; //in blocks
-        readonly int mapHeight; //in blocks
-        readonly int blockEdge; //in pixels
-        const int foodCount = 20;
-        readonly Food[,] mapf;
-        Image food = Properties.Resources.food;
-        Player playerA;
-        bool gameOver;
-        bool stretch;
+        protected readonly int mapWidth; //in blocks
+        protected readonly int mapHeight; //in blocks
+        protected readonly int blockEdge; //in pixels
+        protected const int foodCount = 20;
+        protected readonly Food[,] mapf;
+        protected Image food = Properties.Resources.food;
+        protected Player playerA;
+        protected bool gameOver;
+        protected bool stretchA;
 
         /// <summary>
         /// Creates new single player game
@@ -80,16 +80,16 @@ namespace ClashOfSnakes
         /// </summary>
         /// <param name="direc">The specified direction</param>
         /// <returns></returns>
-        public int MakeMove(Direction direc)
+        public virtual Scores MakeMove(Direction direc, Direction none)
         {
             if (!gameOver)
             {
-                gameOver = playerA.Move(direc, stretch);
-                stretch = mapf[playerA.headX, playerA.headY] == Food.food;
+                gameOver = playerA.Move(direc, stretchA);
+                stretchA = mapf[playerA.headX, playerA.headY] == Food.food;
                 if (mapf[playerA.headX, playerA.headY] == Food.food) addFood();
                 mapf[playerA.headX, playerA.headY] = Food.nothing;                                
             }
-            return playerA.length - 3;
+            return new Scores(playerA.length - 3, 0);
         }
 
         /// <summary>
@@ -114,16 +114,27 @@ namespace ClashOfSnakes
         /// Paints food and snake on the ground
         /// </summary>
         /// <param name="gr">Drawing surface</param>
-        public void Paint(Graphics gr)
+        public virtual void Paint(Graphics gr)
         {
             paintFood(gr);
             playerA.Paint(gr);
         }
 
-        enum Food
+        protected enum Food
         {
             nothing,
             food
+        }
+    }
+
+    struct Scores
+    {
+        public readonly int A;
+        public readonly int B;
+        public Scores(int a, int b)
+        {
+            A = a;
+            B = b;
         }
     }
 }

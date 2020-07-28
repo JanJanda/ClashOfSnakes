@@ -12,6 +12,8 @@ namespace ClashOfSnakes
 {
     public partial class GameWindow : Form
     {
+        const int delay = 150;
+        const int read = 50;
         const int mapWidth = 1000;
         const int mapHeight = 800;
         const int blockEdge = 20;
@@ -24,8 +26,11 @@ namespace ClashOfSnakes
         TextBox addr;
         Image ground = Properties.Resources.ground;
         SinglePGame game;
-        Direction direction;
+        Direction directionA;
+        Direction directionB;
+        bool validMessage;
         Timer t1;
+        whoAmI me;
 
         public GameWindow()
         {
@@ -101,7 +106,6 @@ namespace ClashOfSnakes
             Controls.Add(info);
 
             t1 = new Timer();
-            t1.Interval = 150;
             t1.Tick += T1_Tick;
         }
 
@@ -123,7 +127,9 @@ namespace ClashOfSnakes
 
         private void T1_Tick(object sender, EventArgs e)
         {
-            L1.Text = game?.MakeMove(direction).ToString();
+            Scores sc = game?.MakeMove(directionA, directionB) ?? new Scores();
+            L1.Text = sc.A.ToString();
+            L2.Text = sc.B.ToString();
             this.Invalidate();
         }
 
@@ -139,9 +145,15 @@ namespace ClashOfSnakes
 
         private void Single_Click(object sender, EventArgs e)
         {
+            t1.Stop();
+            me = whoAmI.playerA;
             game = new SinglePGame(mapWidth, mapHeight, blockEdge);
             L1.Visible = true;
-            direction = Direction.right;
+            L2.Visible = false;
+            info.Visible = false;
+            addr.Visible = false;
+            directionA = Direction.right;
+            t1.Interval = delay + read;
             t1.Start();
             this.Invalidate();
         }
@@ -162,21 +174,34 @@ namespace ClashOfSnakes
 
         private void GameWindow_KeyDown(object sender, KeyEventArgs e)
         {
+            Direction tmp;
+            if (me == whoAmI.playerA) tmp = directionA;
+            else tmp = directionB;
+
             switch (e.KeyCode)
             {
                 case Keys.W:
-                    direction = Direction.up;
+                    tmp = Direction.up;
                     break;
                 case Keys.A:
-                    direction = Direction.left;
+                    tmp = Direction.left;
                     break;
                 case Keys.S:
-                    direction = Direction.down;
+                    tmp = Direction.down;
                     break;
                 case Keys.D:
-                    direction = Direction.right;
+                    tmp = Direction.right;
                     break;
             }
+
+            if (me == whoAmI.playerA) directionA = tmp;
+            else directionB = tmp;
+        }
+
+        enum whoAmI
+        {
+            playerA,
+            playerB
         }
     }
 }
