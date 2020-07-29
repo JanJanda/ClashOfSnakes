@@ -19,6 +19,7 @@ namespace ClashOfSnakes
         protected Player playerA;
         protected bool gameOver;
         protected bool stretchA;
+        protected readonly Random rnd;
 
         /// <summary>
         /// Creates new single player game
@@ -26,7 +27,7 @@ namespace ClashOfSnakes
         /// <param name="width">Width of the map, PIXELS</param>
         /// <param name="height">Height of the map, PIXELS</param>
         /// <param name="edge">Length of the edge of a block, PIXELS, must divide width and height</param>
-        public SinglePGame(int width, int height, int edge)
+        public SinglePGame(int width, int height, int edge, int rndseed)
         {
             if (width % edge != 0 || height % edge != 0) throw new ArgumentException();
             playerA = new Player(SnakeColor.green, width, height, edge);
@@ -34,6 +35,7 @@ namespace ClashOfSnakes
             mapHeight = height / edge;
             blockEdge = edge;
             mapf = new Food[mapWidth, mapHeight];
+            rnd = new Random(rndseed);
             placeAllFood();            
         }
 
@@ -43,7 +45,6 @@ namespace ClashOfSnakes
         private void placeAllFood()
         {
             int done = 0;
-            Random rnd = new Random();
             while(done < foodCount)
             {
                 int x = rnd.Next(mapWidth);
@@ -62,7 +63,6 @@ namespace ClashOfSnakes
         private void addFood()
         {
             bool go = true;
-            Random rnd = new Random();
             while (go)
             {
                 int x = rnd.Next(mapWidth);

@@ -18,7 +18,7 @@ namespace ClashOfSnakes
         /// <param name="width">Width of the map, PIXELS</param>
         /// <param name="height">Height of the map, PIXELS</param>
         /// <param name="edge">Length of the edge of a block, PIXELS, must divide width and height</param>
-        public MultiPGame(int width, int height, int edge) : base(width, height, edge)
+        public MultiPGame(int width, int height, int edge, int rndseed) : base(width, height, edge, rndseed)
         {
             playerB = new Player(SnakeColor.red, width, height, edge);
         }
@@ -58,7 +58,6 @@ namespace ClashOfSnakes
         private void addFood()
         {
             bool go = true;
-            Random rnd = new Random();
             while (go)
             {
                 int x = rnd.Next(mapWidth);

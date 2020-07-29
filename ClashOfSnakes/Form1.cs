@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +21,7 @@ namespace ClashOfSnakes
         const int mapWidth = 1000;
         const int mapHeight = 800;
         const int blockEdge = 20;
+        const int port = 52217;
         Button connect;
         Button create;
         Button single;
@@ -30,7 +35,12 @@ namespace ClashOfSnakes
         Direction directionB;
         bool validMessage;
         Timer t1;
+        Timer t2;
         whoAmI me;
+        StreamWriter dataOut;
+        StreamReader dataIn;
+        Timer waiting;
+        TcpListener listener;
 
         public GameWindow()
         {
@@ -89,17 +99,17 @@ namespace ClashOfSnakes
             Controls.Add(L2);
 
             addr = new TextBox();
-            addr.Width = 130;
+            addr.Width = 100;
             addr.Height = 20;
             addr.BackColor = Color.Beige;
-            addr.Location = new Point(530, 840);
+            addr.Location = new Point(560, 840);
             addr.Visible = false;
             Controls.Add(addr);
 
             info = new Label();            
             info.Font = new Font("Arial", 20);
             info.Height = 40;
-            info.Width = 650;
+            info.Width = 550;
             info.Location = new Point(0, 830);
             info.ForeColor = Color.Beige;
             info.Visible = false;
@@ -107,6 +117,13 @@ namespace ClashOfSnakes
 
             t1 = new Timer();
             t1.Tick += T1_Tick;
+
+            t2 = new Timer();
+            t2.Tick += T2_Tick;
+
+            waiting = new Timer();
+            waiting.Interval = 1000;
+            waiting.Tick += Waiting_Tick;
         }
 
         private void configButton(Button b)
@@ -133,27 +150,90 @@ namespace ClashOfSnakes
             this.Invalidate();
         }
 
-        private void Connect_Click(object sender, EventArgs e)
+        private void T2_Tick(object sender, EventArgs e)
         {
             
         }
 
-        private void Create_Click(object sender, EventArgs e)
+        private void beginMultiplayer()
+        {
+            L1.Text = "0"; //config UI
+            L2.Text = "0";
+            L1.Visible = true;
+            L2.Visible = true;
+            info.Visible = false;
+            addr.Visible = false;
+            directionA = Direction.right;
+            directionB = Direction.left;
+            validMessage = false;
+
+            Random r = new Random();
+            int seed = r.Next();
+            game = new MultiPGame(mapWidth, mapHeight, blockEdge, seed);
+            dataOut.WriteLine(seed);
+            t1.Interval = read;
+            t1.Stop();
+            t2.Interval = delay;
+            t2.Start();
+            this.Invalidate();
+        }
+
+        private void Waiting_Tick(object sender, EventArgs e)
+        {
+            if (listener != null && listener.Pending())
+            {
+                Stream s = listener.AcceptTcpClient().GetStream();
+                dataIn = new StreamReader(s);
+                dataOut = new StreamWriter(s);
+                dataOut.AutoFlush = true;
+                listener.Stop();
+                waiting.Stop();
+                me = whoAmI.playerA;
+                beginMultiplayer();
+            }
+        }
+
+        private void Connect_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void Create_Click(object sender, EventArgs e)
+        {
+            dataIn = null; //cofig UI
+            dataOut = null;
+            game = null;
+            L1.Visible = false;
+            L2.Visible = false;
+            info.Visible = true;
+            this.Invalidate();
+            
+            if (!NetworkInterface.GetIsNetworkAvailable()) //check for network
+            {                
+                info.Text = "No network detected!";
+                return;
+            }
+
+            info.Text = "Waiting for opponent..."; //start polling network
+            listener?.Stop();
+            listener = new TcpListener(IPAddress.Any, port);
+            listener.Start();
+            waiting.Start();
         }
 
         private void Single_Click(object sender, EventArgs e)
         {
             t1.Stop();
             me = whoAmI.playerA;
-            game = new SinglePGame(mapWidth, mapHeight, blockEdge);
+            Random r = new Random();
+            game = new SinglePGame(mapWidth, mapHeight, blockEdge, r.Next());
             L1.Visible = true;
             L2.Visible = false;
             info.Visible = false;
             addr.Visible = false;
             directionA = Direction.right;
             t1.Interval = delay + read;
+            validMessage = true;
             t1.Start();
             this.Invalidate();
         }
