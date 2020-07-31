@@ -44,6 +44,13 @@ namespace ClashOfSnakes
         TcpListener listener;
         bool connectionFail;
         bool multi;
+        Timer connectWait;
+        int receivedSeed;
+        bool seedReceived;
+        bool seedRecFailed;
+        Timer waitForSeed;
+        int connectAttempts;
+        bool dontChangeDirection;
 
         public GameWindow()
         {
@@ -127,6 +134,14 @@ namespace ClashOfSnakes
             waiting = new Timer();
             waiting.Interval = 1000;
             waiting.Tick += Waiting_Tick;
+
+            connectWait = new Timer();
+            connectWait.Interval = 1000;
+            connectWait.Tick += ConnectWait_Tick;
+
+            waitForSeed = new Timer();
+            waitForSeed.Interval = 500;
+            waitForSeed.Tick += WaitForSeed_Tick;
         }
 
         private void configButton(Button b)
@@ -162,6 +177,7 @@ namespace ClashOfSnakes
             }
 
             Scores sc = game?.MakeMove(directionA, directionB) ?? new Scores();
+            dontChangeDirection = false;
             L1.Text = sc.A.ToString();
             L2.Text = sc.B.ToString();
             this.Invalidate();
@@ -177,6 +193,7 @@ namespace ClashOfSnakes
         private void T2_Tick(object sender, EventArgs e)
         {
             t2.Stop();
+            dontChangeDirection = true;
             writeNet();
             Task.Run(readNet);
             t1.Start();
@@ -288,7 +305,106 @@ namespace ClashOfSnakes
 
         private void Connect_Click(object sender, EventArgs e)
         {
+            if (!addr.Visible)
+            {
+                game = null;
+                this.Invalidate();
+                L1.Visible = false;
+                L2.Visible = false;
+                info.Text = "Enter opponent's IP address and Connect:";
+                info.Visible = true;
+                addr.Text = "";
+                addr.Visible = true;
+            }
+            else
+            {
+                addr.Visible = false;
+                IPAddress ad;
+                if (IPAddress.TryParse(addr.Text, out ad))
+                {                    
+                    info.Text = "Connecting to " + ad.ToString() + "...";
+                    dataIn = null;
+                    dataOut = null;
+                    connectAttempts = 20;
+                    connectWait.Start();
+                    Task.Run(() => makeConnection(ad));
+                }
+                else info.Text = "Can not understand the address!";
+            }
+        }
 
+        private void makeConnection(IPAddress a)
+        {
+            TcpClient client = new TcpClient();
+            try
+            {
+                client.Connect(a, port);
+            }
+            catch (SocketException)
+            {
+                return;
+            }
+            Stream s = client.GetStream();
+            dataIn = new StreamReader(s);
+            dataOut = new StreamWriter(s);
+            dataOut.AutoFlush = true;
+        }
+
+        private void ConnectWait_Tick(object sender, EventArgs e)
+        {
+            if (connectAttempts < 0)
+            {
+                connectWait.Stop();
+                info.Text = "Connection failed!";
+                return;
+            }
+            if (dataIn != null) 
+            {
+                connectWait.Stop();
+                seedReceived = false;
+                seedRecFailed = false;
+                waitForSeed.Start();
+                Task.Run(receiveSeed);
+            }
+            connectAttempts--;
+        }
+
+        private void receiveSeed()
+        {
+            try
+            {
+                receivedSeed = int.Parse(dataIn.ReadLine());
+                seedReceived = true;
+            }
+            catch (IOException)
+            {
+                seedRecFailed = true;
+            }
+        }
+
+        private void WaitForSeed_Tick(object sender, EventArgs e)
+        {
+            if (seedRecFailed)
+            {
+                waitForSeed.Stop();
+                info.Text = "Connection lost!";
+                return;
+            }
+            if (seedReceived)
+            {
+                t1.Stop();
+                t2.Stop();
+                waitForSeed.Stop();
+                game = new MultiPGame(mapWidth, mapHeight, blockEdge, receivedSeed);
+                me = whoAmI.playerB;
+                multi = true;
+                info.Visible = false;
+                L1.Visible = true;
+                L2.Visible = true;
+                t1.Interval = read;
+                t2.Interval = delay;
+                t2.Start();
+            }
         }
 
         private void Create_Click(object sender, EventArgs e)
@@ -299,6 +415,7 @@ namespace ClashOfSnakes
             L1.Visible = false;
             L2.Visible = false;
             info.Visible = true;
+            connectionFail = false;
             this.Invalidate();
             
             if (!NetworkInterface.GetIsNetworkAvailable()) //check for network
@@ -319,6 +436,7 @@ namespace ClashOfSnakes
             waiting.Stop();
             listener?.Stop();
             t1.Stop();
+            t2.Stop();            
             me = whoAmI.playerA;
             Random r = new Random();
             game = new SinglePGame(mapWidth, mapHeight, blockEdge, r.Next());
@@ -350,6 +468,8 @@ namespace ClashOfSnakes
 
         private void GameWindow_KeyDown(object sender, KeyEventArgs e)
         {
+            if (dontChangeDirection) return;
+
             Direction tmp;
             if (me == whoAmI.playerA) tmp = directionA;
             else tmp = directionB;
