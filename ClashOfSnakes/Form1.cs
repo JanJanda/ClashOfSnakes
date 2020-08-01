@@ -467,6 +467,17 @@ namespace ClashOfSnakes
                 return;
             }
 
+            IPAddress[] options = Dns.GetHostAddresses(Dns.GetHostName()); //show available addresses of this computer
+            IEnumerable<string> ipv4addrs = from a in options where a.AddressFamily == AddressFamily.InterNetwork select a.ToString() + "\n";
+            string preamble = "This computer has these addresses:\n\n";
+            string opt = "no address available";
+            if (ipv4addrs.Count() > 0)
+            {
+                opt = "";
+                foreach (string s in ipv4addrs) opt += s;
+            }
+            Task.Run(() => MessageBox.Show(preamble + opt, "Clash of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Information));
+
             info.Text = "Waiting for opponent..."; //start polling network
             listener = new TcpListener(IPAddress.Any, port);
             listener.Start();

@@ -44,6 +44,7 @@
             this.Load += new System.EventHandler(this.GameWindow_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.GameWindow_Paint);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.GameWindow_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.GameWindow_KeyDown);
             this.ResumeLayout(false);
 
         }
