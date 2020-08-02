@@ -17,7 +17,7 @@ namespace ClashOfSnakes
 {
     public partial class GameWindow : Form
     {
-        const int delay = 180;
+        const int delay = 180; //constants for game configuration
         const int read = 20;
         const int mapWidth = 1000;
         const int mapHeight = 800;
@@ -75,7 +75,7 @@ namespace ClashOfSnakes
         }
 
         /// <summary>
-        /// Makes buttons, labels, textbox and timer
+        /// Makes buttons, labels, textbox, timers, ... Used for inicialization.
         /// </summary>
         private void makeUI()
         {
@@ -145,6 +145,10 @@ namespace ClashOfSnakes
             waitForSeed.Tick += WaitForSeed_Tick;
         }
 
+        /// <summary>
+        /// Configures common properties of a button
+        /// </summary>
+        /// <param name="b">The button to be configured</param>
         private void configButton(Button b)
         {
             b.Height = 40;
@@ -153,6 +157,10 @@ namespace ClashOfSnakes
             b.ForeColor = Color.Black;
         }
 
+        /// <summary>
+        /// Configures common properties of a label
+        /// </summary>
+        /// <param name="l">The label to be configured</param>
         private void configLabel(Label l)
         {
             l.Font = new Font("Arial", 40);
@@ -161,6 +169,11 @@ namespace ClashOfSnakes
             l.Visible = false;
         }
 
+        /// <summary>
+        /// Main game timer. Makes game move
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void T1_Tick(object sender, EventArgs e)
         {
             if (connectionFail)
@@ -191,6 +204,11 @@ namespace ClashOfSnakes
             }
         }
 
+        /// <summary>
+        /// Multiplayer game timer. Takes care of network communication
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void T2_Tick(object sender, EventArgs e)
         {
             t2.Stop();
@@ -200,6 +218,9 @@ namespace ClashOfSnakes
             t1.Start();
         }
 
+        /// <summary>
+        /// Sends out to netword data about current local move.
+        /// </summary>
         private void writeNet()
         {
             Direction tmp;
@@ -229,6 +250,9 @@ namespace ClashOfSnakes
             }
         }
 
+        /// <summary>
+        /// Reads incoming data about move of the opponent.
+        /// </summary>
         private void readNet()
         {
             string s;
@@ -265,6 +289,9 @@ namespace ClashOfSnakes
             validMessage = true;
         }
 
+        /// <summary>
+        /// Sets the program for multiplayer as a server.
+        /// </summary>
         private void beginMultiplayer()
         {
             L1.Text = "0"; //config UI
@@ -289,6 +316,11 @@ namespace ClashOfSnakes
             this.Invalidate();
         }
 
+        /// <summary>
+        /// Checks network for connecting opponent.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Waiting_Tick(object sender, EventArgs e)
         {
             if (listener != null && listener.Pending())
@@ -306,6 +338,11 @@ namespace ClashOfSnakes
             }
         }
 
+        /// <summary>
+        /// Connect button click event handeler. Initiates client connection to a game server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Connect_Click(object sender, EventArgs e)
         {
             if (!addr.Visible)
@@ -356,6 +393,11 @@ namespace ClashOfSnakes
             }
         }
 
+
+        /// <summary>
+        /// Tries to make connection to a game server on the given IP address.
+        /// </summary>
+        /// <param name="a">The IP address to connect to</param>
         private void makeConnection(IPAddress a)
         {
             client = new TcpClient();
@@ -374,6 +416,11 @@ namespace ClashOfSnakes
             dataOut.AutoFlush = true;
         }
 
+        /// <summary>
+        /// Checks if the connection as a client was successful. Takes only set number of attempts.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ConnectWait_Tick(object sender, EventArgs e)
         {
             if (connectAttempts < 0)
@@ -393,6 +440,9 @@ namespace ClashOfSnakes
             connectAttempts--;
         }
 
+        /// <summary>
+        /// Receives the game seed from the connected server.
+        /// </summary>
         private void receiveSeed()
         {
             try
@@ -406,6 +456,11 @@ namespace ClashOfSnakes
             }
         }
 
+        /// <summary>
+        /// Handles the received game seed from the game server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void WaitForSeed_Tick(object sender, EventArgs e)
         {
             if (seedRecFailed)
@@ -431,9 +486,14 @@ namespace ClashOfSnakes
             }
         }
 
+        /// <summary>
+        /// Handles the Create multiplayer button click event ant initiates process of creating a game as a server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Create_Click(object sender, EventArgs e)
         {
-            L1.Visible = false;
+            L1.Visible = false; //config UI
             L2.Visible = false;
             info.Text = "";
             info.Visible = true;
@@ -484,6 +544,12 @@ namespace ClashOfSnakes
             waiting.Start();
         }
 
+
+        /// <summary>
+        /// Handles the Singleplayer button click event and creates new singleplayer game.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Single_Click(object sender, EventArgs e)
         {
             L1.Text = "0"; //config UI
@@ -518,6 +584,11 @@ namespace ClashOfSnakes
             this.Invalidate();
         }
 
+        /// <summary>
+        /// Initializes the entire program.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GameWindow_Load(object sender, EventArgs e)
         {
             this.ClientSize = new Size(mapWidth, mapHeight + 100);
@@ -526,12 +597,22 @@ namespace ClashOfSnakes
             makeUI();            
         }
 
+        /// <summary>
+        /// Repaints the game window and the game map if necessary.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GameWindow_Paint(object sender, PaintEventArgs e)
         {
             makeGround(e.Graphics);
             game?.Paint(e.Graphics);
         }
 
+        /// <summary>
+        /// Handles KeyDown as well as KeyUp events. Saves the instruction for the snake.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void GameWindow_KeyDown(object sender, KeyEventArgs e)
         {
             if (dontChangeDirection) return;
@@ -560,6 +641,9 @@ namespace ClashOfSnakes
             else directionB = tmp;
         }
 
+        /// <summary>
+        /// Tells who is the local player. Singleplayer is playerA, server side multiplayer is playerA and client side multiplayer is playerB
+        /// </summary>
         enum whoAmI
         {
             playerA,
