@@ -20,13 +20,13 @@ namespace ClashOfSnakes
         readonly int mapHeight; //in blocks
         readonly int blockEdge; //in pixels
         int hx;
-        public int headX { get { return hx; } private set { hx = value; if (hx < 0) hx += mapWidth;  } }
+        public int headX { get { return hx; } private set { hx = value.posMod(mapWidth); } }
         int hy;
-        public int headY { get { return hy; } private set { hy = value; if (hy < 0) hy += mapHeight; } }
+        public int headY { get { return hy; } private set { hy = value.posMod(mapHeight); } }
         int tx;
-        public int tailX { get { return tx; } private set { tx = value; if (tx < 0) tx += mapWidth; } }
+        public int tailX { get { return tx; } private set { tx = value.posMod(mapWidth); } }
         int ty;
-        public int tailY { get { return ty; } private set { ty = value; if (ty < 0) ty += mapHeight; } }
+        public int tailY { get { return ty; } private set { ty = value.posMod(mapHeight); } }
         public int length { get; private set; }
         PartID[,] map;
         
@@ -169,19 +169,19 @@ namespace ClashOfSnakes
                     {
                         case Direction.up:
                             map[headX, headY] = new PartID(1, 2);
-                            headY = (headY - 1) % mapHeight;
+                            headY = headY - 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 3);
                             break;
                         case Direction.down:
                             map[headX, headY] = new PartID(1, 5);
-                            headY = (headY + 1) % mapHeight;
+                            headY = headY + 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 1);
                             break;
                         default:
                             map[headX, headY] = new PartID(1, 0);
-                            headX = (headX + 1) % mapWidth;
+                            headX = headX + 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 0);
                             break;
@@ -192,19 +192,19 @@ namespace ClashOfSnakes
                     {
                         case Direction.left:
                             map[headX, headY] = new PartID(1, 2);
-                            headX = (headX - 1) % mapWidth;
+                            headX = headX - 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 2);
                             break;
                         case Direction.right:
                             map[headX, headY] = new PartID(1, 3);
-                            headX = (headX + 1) % mapWidth;
+                            headX = headX + 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 0);
                             break;
                         default:
                             map[headX, headY] = new PartID(1, 1);
-                            headY = (headY + 1) % mapHeight;
+                            headY = headY + 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 1);
                             break;
@@ -215,19 +215,19 @@ namespace ClashOfSnakes
                     {
                         case Direction.up:
                             map[headX, headY] = new PartID(1, 3);
-                            headY = (headY - 1) % mapHeight;
+                            headY = headY - 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 3);
                             break;
                         case Direction.down:
                             map[headX, headY] = new PartID(1, 4);
-                            headY = (headY + 1) % mapHeight;
+                            headY = headY + 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 1);
                             break;
                         default:
                             map[headX, headY] = new PartID(1, 0);
-                            headX = (headX - 1) % mapWidth;
+                            headX = headX - 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 2);
                             break;
@@ -238,19 +238,19 @@ namespace ClashOfSnakes
                     {
                         case Direction.left:
                             map[headX, headY] = new PartID(1, 5);
-                            headX = (headX - 1) % mapWidth;
+                            headX = headX - 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 2);
                             break;
                         case Direction.right:
                             map[headX, headY] = new PartID(1, 4);
-                            headX = (headX + 1) % mapWidth;
+                            headX = headX + 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 0);
                             break;
                         default:
                             map[headX, headY] = new PartID(1, 1);
-                            headY = (headY - 1) % mapHeight;
+                            headY = headY - 1;
                             crash = map[headX, headY].valid;
                             map[headX, headY] = new PartID(0, 3);
                             break;
@@ -270,7 +270,7 @@ namespace ClashOfSnakes
             switch (map[tailX, tailY].y)
             {
                 case 0: //body is to the right from the tail
-                    tailX = (tailX + 1) % mapWidth;
+                    tailX = tailX + 1;
                     switch(map[tailX, tailY].y)
                     {
                         case 0:
@@ -285,7 +285,7 @@ namespace ClashOfSnakes
                     }
                     break;
                 case 1: //body is below the tail
-                    tailY = (tailY + 1) % mapHeight;
+                    tailY = tailY + 1;
                     switch(map[tailX, tailY].y)
                     {
                         case 1:
@@ -300,7 +300,7 @@ namespace ClashOfSnakes
                     }
                     break;
                 case 2: //body is to the left from the tail
-                    tailX = (tailX - 1) % mapWidth;
+                    tailX = tailX - 1;
                     switch(map[tailX, tailY].y)
                     {
                         case 0:
@@ -315,7 +315,7 @@ namespace ClashOfSnakes
                     }
                     break;
                 case 3: //body is above the tail
-                    tailY = (tailY - 1) % mapHeight;
+                    tailY = tailY - 1;
                     switch(map[tailX, tailY].y)
                     {
                         case 1:
