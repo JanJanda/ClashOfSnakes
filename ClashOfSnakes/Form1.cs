@@ -28,7 +28,7 @@ namespace ClashOfSnakes
         Label L2;
         Label info;
         TextBox addr;
-        Bitmap ground = Properties.Resources.ground;
+        readonly Bitmap ground = Properties.Resources.ground;
         SinglePGame game;
         Direction directionA;
         Direction directionB;
@@ -187,7 +187,7 @@ namespace ClashOfSnakes
                 game.Reset();
                 t2.Start();
             }
-            this.Invalidate();
+            Invalidate();
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace ClashOfSnakes
             dontChangeDirection = false;
             L1.Text = sc.A.ToString();
             L2.Text = sc.B.ToString();
-            this.Invalidate();
+            Invalidate();
 
             if (multi)
             {
@@ -335,7 +335,7 @@ namespace ClashOfSnakes
             t1.Stop();
             t2.Interval = delay;
             t2.Start();
-            this.Invalidate();
+            Invalidate();
         }
 
         /// <summary>
@@ -398,13 +398,12 @@ namespace ClashOfSnakes
                 dontChangeDirection = false;
                 client?.Close();
                 client = null;
-                this.Invalidate();
+                Invalidate();
             }
             else
             {
                 addr.Visible = false;
-                IPAddress ad;
-                if (IPAddress.TryParse(addr.Text, out ad))
+                if (IPAddress.TryParse(addr.Text, out IPAddress ad))
                 {
                     info.Text = "Connecting to " + ad.ToString() + "...";
                     dataIn = null;
@@ -544,7 +543,7 @@ namespace ClashOfSnakes
             dontChangeDirection = false;
             client?.Close();
             client = null;
-            this.Invalidate();
+            Invalidate();
 
             if (!NetworkInterface.GetIsNetworkAvailable()) //check for network
             {
@@ -607,7 +606,7 @@ namespace ClashOfSnakes
             Random r = new Random();
             game = new SinglePGame(mapWidth, mapHeight, blockEdge, r.Next());
             t1.Start();
-            this.Invalidate();
+            Invalidate();
         }
 
         /// <summary>
@@ -617,9 +616,9 @@ namespace ClashOfSnakes
         /// <param name="e"></param>
         private void GameWindow_Load(object sender, EventArgs e)
         {
-            this.ClientSize = new Size(mapWidth, mapHeight + 100);
-            this.BackColor = Color.Black;
-            this.Icon = Properties.Resources.icon;
+            ClientSize = new Size(mapWidth, mapHeight + 100);
+            BackColor = Color.Black;
+            Icon = Properties.Resources.icon;
             makeUI();
         }
 

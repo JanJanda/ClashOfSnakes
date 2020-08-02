@@ -135,7 +135,7 @@ namespace ClashOfSnakes
         /// <param name="gr">Drawing surface</param>
         private void paintMap(Graphics gr)
         {
-            food.SetResolution(gr.DpiX, gr.DpiY);            
+            food.SetResolution(gr.DpiX, gr.DpiY);
             wall.SetResolution(gr.DpiX, gr.DpiY);
             for (int i = 0; i < mapWidth; i++)
             {
