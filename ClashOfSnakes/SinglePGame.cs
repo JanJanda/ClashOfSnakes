@@ -13,9 +13,11 @@ namespace ClashOfSnakes
         protected readonly int mapWidth; //in blocks
         protected readonly int mapHeight; //in blocks
         protected readonly int blockEdge; //in pixels
+        protected const int wallCount = 4;
         protected const int foodCount = 20;
-        protected readonly Food[,] mapf;
+        protected readonly Thing[,] mapf;
         protected Image food = Properties.Resources.food;
+        protected Image wall = Properties.Resources.wall;
         protected Player playerA;
         protected bool gameOver;
         protected bool stretchA;
@@ -34,13 +36,35 @@ namespace ClashOfSnakes
             mapWidth = width / edge;
             mapHeight = height / edge;
             blockEdge = edge;
-            mapf = new Food[mapWidth, mapHeight];
+            mapf = new Thing[mapWidth, mapHeight];
             rnd = new Random(rndseed);
+            placeWalls();
             placeAllFood();            
         }
 
         /// <summary>
-        /// Places all pieces of foon on the map. Also suitable for multiplayer.
+        /// Places walls on the map
+        /// </summary>
+        private void placeWalls()
+        {
+            int done = 0;
+            while (done < wallCount)
+            {
+                int length = rnd.Next(5, mapHeight / 2);
+                int orientation = rnd.Next(2);
+                int startX = rnd.Next(mapWidth);
+                int startY = rnd.Next(mapHeight);
+                if (startX >= 4 && startX <= mapWidth - 5 && startY >= 2 && startY <= mapHeight - 3) //makes sure that wall is not on initial position of any snake
+                {
+                    if (orientation == 0) for (int i = 1; i <= length; i++) mapf[(startX + i).posMod(mapWidth), startY] = Thing.wall;
+                    else for (int i = 1; i <= length; i++) mapf[startX, (startY + i).posMod(mapHeight)] = Thing.wall;
+                    done++;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Places all pieces of food on the map. Also suitable for multiplayer.
         /// </summary>
         private void placeAllFood()
         {
@@ -49,9 +73,9 @@ namespace ClashOfSnakes
             {
                 int x = rnd.Next(mapWidth);
                 int y = rnd.Next(mapHeight);
-                if (!(x == 0 && y == 0) && !(x == 1 && y == 0) && !(x == 2 && y == 0) && !(x == mapWidth - 1 && y == mapHeight - 1) && !(x == mapWidth - 2 && y == mapHeight - 1) && !(x == mapWidth - 3 && y == mapHeight - 1) && mapf[x, y] == Food.nothing) //make sure that the food is not placed on initial positions of snakes or another food
+                if (!(x == 0 && y == 0) && !(x == 1 && y == 0) && !(x == 2 && y == 0) && !(x == mapWidth - 1 && y == mapHeight - 1) && !(x == mapWidth - 2 && y == mapHeight - 1) && !(x == mapWidth - 3 && y == mapHeight - 1) && mapf[x, y] == Thing.nothing) //make sure that the food is not placed on initial positions of snakes or another food or wall
                 {
-                    mapf[x, y] = Food.food;
+                    mapf[x, y] = Thing.food;
                     done++;
                 }
             }
@@ -67,9 +91,9 @@ namespace ClashOfSnakes
             {
                 int x = rnd.Next(mapWidth);
                 int y = rnd.Next(mapHeight);
-                if(!playerA.Occupies(x, y) && mapf[x, y] == Food.nothing)
+                if(!playerA.Occupies(x, y) && mapf[x, y] == Thing.nothing)
                 {
-                    mapf[x, y] = Food.food;
+                    mapf[x, y] = Thing.food;
                     go = false;
                 }
             }
@@ -85,45 +109,53 @@ namespace ClashOfSnakes
             if (!gameOver)
             {
                 gameOver = playerA.Move(direc, stretchA);
-                stretchA = mapf[playerA.headX, playerA.headY] == Food.food;
-                if (mapf[playerA.headX, playerA.headY] == Food.food) addFood();
-                mapf[playerA.headX, playerA.headY] = Food.nothing;                                
+                if (mapf[playerA.headX, playerA.headY] == Thing.wall) gameOver = true;
+                stretchA = mapf[playerA.headX, playerA.headY] == Thing.food;
+                if (mapf[playerA.headX, playerA.headY] == Thing.food)
+                {
+                    addFood();
+                    mapf[playerA.headX, playerA.headY] = Thing.nothing;
+                }
             }
             return new Scores(playerA.length - 3, 0);
         }
 
         /// <summary>
-        /// Paints food on the ground
+        /// Paints food and walls on the ground
         /// </summary>
         /// <param name="gr">Drawing surface</param>
-        private void paintFood(Graphics gr)
+        private void paintMap(Graphics gr)
         {
             Bitmap pic = (Bitmap)food;
             pic.SetResolution(gr.DpiX, gr.DpiY);
             pic.MakeTransparent(Color.White);
+            Bitmap picwall = (Bitmap)wall;
+            picwall.SetResolution(gr.DpiX, gr.DpiY);
             for (int i = 0; i < mapWidth; i++)
             {
                 for (int j = 0; j < mapHeight; j++)
                 {
-                    if (mapf[i, j] == Food.food) gr.DrawImage(pic, i * blockEdge, j * blockEdge);
+                    if (mapf[i, j] == Thing.food) gr.DrawImage(pic, i * blockEdge, j * blockEdge);
+                    if (mapf[i, j] == Thing.wall) gr.DrawImage(picwall, i * blockEdge, j * blockEdge);
                 }
             }
         }
 
         /// <summary>
-        /// Paints food and snake on the ground
+        /// Paints food, walls and snake on the ground
         /// </summary>
         /// <param name="gr">Drawing surface</param>
         public virtual void Paint(Graphics gr)
         {
-            paintFood(gr);
+            paintMap(gr);
             playerA.Paint(gr);
         }
 
-        protected enum Food
+        protected enum Thing
         {
             nothing,
-            food
+            food,
+            wall
         }
     }
 

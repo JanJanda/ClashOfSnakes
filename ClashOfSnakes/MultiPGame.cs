@@ -23,6 +23,10 @@ namespace ClashOfSnakes
             playerB = new Player(SnakeColor.red, width, height, edge);
         }
 
+        /// <summary>
+        /// Paints food, walls and snakes on the ground
+        /// </summary>
+        /// <param name="gr">Drawing surface</param>
         public override void Paint(Graphics gr)
         {
             base.Paint(gr);
@@ -41,12 +45,19 @@ namespace ClashOfSnakes
             {
                 gameOver = playerA.Move(direcA, stretchA) || playerB.Move(direcB, stretchB);
                 if (playerA.Occupies(playerB.headX, playerB.headY) || playerB.Occupies(playerA.headX, playerA.headY)) gameOver = true;
-                stretchA = mapf[playerA.headX, playerA.headY] == Food.food;
-                stretchB = mapf[playerB.headX, playerB.headY] == Food.food;
-                if (mapf[playerA.headX, playerA.headY] == Food.food) addFood();
-                if (mapf[playerB.headX, playerB.headY] == Food.food) addFood();
-                mapf[playerA.headX, playerA.headY] = Food.nothing;
-                mapf[playerB.headX, playerB.headY] = Food.nothing;
+                if (mapf[playerA.headX, playerA.headY] == Thing.wall || mapf[playerB.headX, playerB.headY] == Thing.wall) gameOver = true;
+                stretchA = mapf[playerA.headX, playerA.headY] == Thing.food;
+                stretchB = mapf[playerB.headX, playerB.headY] == Thing.food;
+                if (mapf[playerA.headX, playerA.headY] == Thing.food)
+                {
+                    addFood();
+                    mapf[playerA.headX, playerA.headY] = Thing.nothing;
+                }
+                if (mapf[playerB.headX, playerB.headY] == Thing.food)
+                {
+                    addFood();
+                    mapf[playerB.headX, playerB.headY] = Thing.nothing;
+                }
             }
 
             return new Scores(playerA.length - 3, playerB.length - 3);
@@ -62,9 +73,9 @@ namespace ClashOfSnakes
             {
                 int x = rnd.Next(mapWidth);
                 int y = rnd.Next(mapHeight);
-                if (!playerA.Occupies(x, y) && !playerB.Occupies(x, y) && mapf[x, y] == Food.nothing)
+                if (!playerA.Occupies(x, y) && !playerB.Occupies(x, y) && mapf[x, y] == Thing.nothing)
                 {
-                    mapf[x, y] = Food.food;
+                    mapf[x, y] = Thing.food;
                     go = false;
                 }
             }
