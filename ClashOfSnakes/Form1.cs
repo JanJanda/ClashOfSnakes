@@ -19,6 +19,7 @@ namespace ClashOfSnakes
     {
         const int delay = 180; //constants for game configuration
         const int read = 20;
+        const int resetTime = 5000;
         const int mapWidth = 1000;
         const int mapHeight = 800;
         const int blockEdge = 20;
@@ -52,6 +53,7 @@ namespace ClashOfSnakes
         int connectAttempts;
         bool dontChangeDirection;
         TcpClient client;
+        Timer waitForReset;
 
         public GameWindow()
         {
@@ -143,6 +145,10 @@ namespace ClashOfSnakes
             waitForSeed = new Timer();
             waitForSeed.Interval = 500;
             waitForSeed.Tick += WaitForSeed_Tick;
+
+            waitForReset = new Timer();
+            waitForReset.Interval = resetTime;
+            waitForReset.Tick += WaitForReset_Tick;
         }
 
         /// <summary>
@@ -167,6 +173,24 @@ namespace ClashOfSnakes
             l.Height = 60;
             l.Width = 130;
             l.Visible = false;
+        }
+
+        /// <summary>
+        /// Resets the current game.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void WaitForReset_Tick(object sender, EventArgs e)
+        {
+            waitForReset.Stop();
+            directionA = Direction.right;
+            directionB = Direction.left;
+            if (game != null)
+            {
+                game.Reset();
+                t2.Start();
+            }
+            this.Invalidate();
         }
 
         /// <summary>
@@ -200,7 +224,8 @@ namespace ClashOfSnakes
             {
                 validMessage = false;
                 t1.Stop();
-                t2.Start();
+                if (sc.gameOver) waitForReset.Start();                
+                else t2.Start();
             }
         }
 
@@ -359,6 +384,7 @@ namespace ClashOfSnakes
                 validMessage = false;
                 t1.Stop();
                 t2.Stop();
+                waitForReset.Stop();
                 me = whoAmI.playerB;
                 dataIn = null;
                 dataOut = null;
@@ -504,6 +530,7 @@ namespace ClashOfSnakes
             validMessage = false;
             t1.Stop();
             t2.Stop();
+            waitForReset.Stop();
             me = whoAmI.playerA;
             dataOut = null;
             dataIn = null;
@@ -561,6 +588,7 @@ namespace ClashOfSnakes
             validMessage = true;
             t1.Stop();
             t2.Stop();
+            waitForReset.Stop();
             me = whoAmI.playerA;
             dataOut = null;
             dataIn = null;

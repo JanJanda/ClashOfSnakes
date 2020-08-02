@@ -15,7 +15,7 @@ namespace ClashOfSnakes
         protected readonly int blockEdge; //in pixels
         protected const int wallCount = 4;
         protected const int foodCount = 20;
-        protected readonly Thing[,] mapf;
+        protected Thing[,] mapf;
         protected Image food = Properties.Resources.food;
         protected Image wall = Properties.Resources.wall;
         protected Player playerA;
@@ -31,11 +31,11 @@ namespace ClashOfSnakes
         /// <param name="edge">Length of the edge of a block, PIXELS, must divide width and height</param>
         public SinglePGame(int width, int height, int edge, int rndseed)
         {
-            if (width % edge != 0 || height % edge != 0) throw new ArgumentException();
-            playerA = new Player(SnakeColor.green, width, height, edge);
+            if (width % edge != 0 || height % edge != 0) throw new ArgumentException();            
             mapWidth = width / edge;
             mapHeight = height / edge;
             blockEdge = edge;
+            playerA = new Player(SnakeColor.green, mapWidth, mapHeight, blockEdge);
             mapf = new Thing[mapWidth, mapHeight];
             rnd = new Random(rndseed);
             placeWalls();
@@ -61,6 +61,19 @@ namespace ClashOfSnakes
                     done++;
                 }
             }
+        }
+
+        /// <summary>
+        /// Resets the game.
+        /// </summary>
+        public virtual void Reset()
+        {
+            gameOver = false;
+            stretchA = false;
+            playerA = new Player(SnakeColor.green, mapWidth, mapHeight, blockEdge);
+            mapf = new Thing[mapWidth, mapHeight];
+            placeWalls();
+            placeAllFood();
         }
 
         /// <summary>
@@ -117,7 +130,7 @@ namespace ClashOfSnakes
                     mapf[playerA.headX, playerA.headY] = Thing.nothing;
                 }
             }
-            return new Scores(playerA.length - 3, 0);
+            return new Scores(playerA.length - 3, 0, gameOver);
         }
 
         /// <summary>
@@ -163,10 +176,12 @@ namespace ClashOfSnakes
     {
         public readonly int A;
         public readonly int B;
-        public Scores(int a, int b)
+        public readonly bool gameOver;
+        public Scores(int a, int b, bool gameo)
         {
             A = a;
             B = b;
+            gameOver = gameo;
         }
     }
 }

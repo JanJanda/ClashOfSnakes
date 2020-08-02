@@ -20,7 +20,17 @@ namespace ClashOfSnakes
         /// <param name="edge">Length of the edge of a block, PIXELS, must divide width and height</param>
         public MultiPGame(int width, int height, int edge, int rndseed) : base(width, height, edge, rndseed)
         {
-            playerB = new Player(SnakeColor.red, width, height, edge);
+            playerB = new Player(SnakeColor.red, mapWidth, mapHeight, blockEdge);
+        }
+
+        /// <summary>
+        /// Resets the game.
+        /// </summary>
+        public override void Reset()
+        {
+            base.Reset();
+            stretchB = false;
+            playerB = new Player(SnakeColor.red, mapWidth, mapHeight, blockEdge);
         }
 
         /// <summary>
@@ -60,7 +70,7 @@ namespace ClashOfSnakes
                 }
             }
 
-            return new Scores(playerA.length - 3, playerB.length - 3);
+            return new Scores(playerA.length - 3, playerB.length - 3, gameOver);
         }
 
         /// <summary>

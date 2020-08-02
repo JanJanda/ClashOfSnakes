@@ -34,14 +34,13 @@ namespace ClashOfSnakes
         /// Creates new player
         /// </summary>
         /// <param name="clr">Color of the players snake</param>
-        /// <param name="width">Width of the map, PIXELS</param>
-        /// <param name="height">Height of the map, PIXELS</param>
-        /// <param name="edge">Length of the edge of a block, PIXELS, must divide width and height</param>
+        /// <param name="width">Width of the map, BLOCKS</param>
+        /// <param name="height">Height of the map, BLOCKS</param>
+        /// <param name="edge">Length of the edge of a block, PIXELS</param>
         public Player(SnakeColor clr, int width, int height, int edge)
-        {
-            if (width % edge != 0 || height % edge != 0) throw new ArgumentException();
-            mapWidth = width / edge;
-            mapHeight = height / edge;
+        {            
+            mapWidth = width;
+            mapHeight = height;
             blockEdge = edge;
             map = new PartID[mapWidth, mapHeight];
 
