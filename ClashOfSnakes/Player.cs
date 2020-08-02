@@ -5,10 +5,10 @@ namespace ClashOfSnakes
 {
     class Player
     {
-        Image[] heads = new Image[4];
-        Image[] bodies = new Image[6];
-        Image[] tails = new Image[4];
-        Image[][] parts;
+        Bitmap[] heads = new Bitmap[4];
+        Bitmap[] bodies = new Bitmap[6];
+        Bitmap[] tails = new Bitmap[4];
+        Bitmap[][] parts;
         readonly int mapWidth; //in blocks
         readonly int mapHeight; //in blocks
         readonly int blockEdge; //in pixels
@@ -90,10 +90,18 @@ namespace ClashOfSnakes
             }
             length = 3;
 
-            parts = new Image[3][];
+            parts = new Bitmap[3][];
             parts[0] = heads;
             parts[1] = bodies;
             parts[2] = tails;
+
+            for(int i = 0; i < parts.Length; i++)
+            {
+                for(int j = 0; j < parts[i].Length; j++)
+                {
+                    parts[i][j].MakeTransparent(Color.White);
+                }
+            }
         }
 
         /// <summary>
@@ -108,9 +116,8 @@ namespace ClashOfSnakes
                 {
                     if (map[i, j].valid)
                     {
-                        Bitmap pic = (Bitmap)parts[map[i, j].x][map[i, j].y];
+                        Bitmap pic = parts[map[i, j].x][map[i, j].y];
                         pic.SetResolution(gr.DpiX, gr.DpiY);
-                        pic.MakeTransparent(Color.White);
                         gr.DrawImage(pic, i * blockEdge, j * blockEdge);
                     }
                 }

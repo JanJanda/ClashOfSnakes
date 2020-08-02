@@ -28,7 +28,7 @@ namespace ClashOfSnakes
         Label L2;
         Label info;
         TextBox addr;
-        Image ground = Properties.Resources.ground;
+        Bitmap ground = Properties.Resources.ground;
         SinglePGame game;
         Direction directionA;
         Direction directionB;
@@ -63,7 +63,7 @@ namespace ClashOfSnakes
         /// <param name="gr"></param>
         private void makeGround(Graphics gr)
         {
-            ((Bitmap)ground).SetResolution(gr.DpiX, gr.DpiY);
+            ground.SetResolution(gr.DpiX, gr.DpiY);
             for (int i = 0; i < mapWidth / blockEdge; i++)
             {
                 for (int j = 0; j < mapHeight / blockEdge; j++)

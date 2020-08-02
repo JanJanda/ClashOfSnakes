@@ -11,8 +11,8 @@ namespace ClashOfSnakes
         protected const int wallCount = 4;
         protected const int foodCount = 20;
         protected Thing[,] mapf;
-        protected Image food = Properties.Resources.food;
-        protected Image wall = Properties.Resources.wall;
+        protected Bitmap food = Properties.Resources.food;
+        protected Bitmap wall = Properties.Resources.wall;
         protected Player playerA;
         protected bool gameOver;
         protected bool stretchA;
@@ -33,6 +33,7 @@ namespace ClashOfSnakes
             playerA = new Player(SnakeColor.green, mapWidth, mapHeight, blockEdge);
             mapf = new Thing[mapWidth, mapHeight];
             rnd = new Random(rndseed);
+            food.MakeTransparent(Color.White);
             placeWalls();
             placeAllFood();
         }
@@ -134,17 +135,14 @@ namespace ClashOfSnakes
         /// <param name="gr">Drawing surface</param>
         private void paintMap(Graphics gr)
         {
-            Bitmap pic = (Bitmap)food;
-            pic.SetResolution(gr.DpiX, gr.DpiY);
-            pic.MakeTransparent(Color.White);
-            Bitmap picwall = (Bitmap)wall;
-            picwall.SetResolution(gr.DpiX, gr.DpiY);
+            food.SetResolution(gr.DpiX, gr.DpiY);            
+            wall.SetResolution(gr.DpiX, gr.DpiY);
             for (int i = 0; i < mapWidth; i++)
             {
                 for (int j = 0; j < mapHeight; j++)
                 {
-                    if (mapf[i, j] == Thing.food) gr.DrawImage(pic, i * blockEdge, j * blockEdge);
-                    if (mapf[i, j] == Thing.wall) gr.DrawImage(picwall, i * blockEdge, j * blockEdge);
+                    if (mapf[i, j] == Thing.food) gr.DrawImage(food, i * blockEdge, j * blockEdge);
+                    if (mapf[i, j] == Thing.wall) gr.DrawImage(wall, i * blockEdge, j * blockEdge);
                 }
             }
         }
