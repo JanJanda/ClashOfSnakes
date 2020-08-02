@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ClashOfSnakes
 {
@@ -29,7 +22,7 @@ namespace ClashOfSnakes
         public int tailY { get { return ty; } private set { ty = value.posMod(mapHeight); } }
         public int length { get; private set; }
         PartID[,] map;
-        
+
         /// <summary>
         /// Creates new player
         /// </summary>
@@ -38,7 +31,7 @@ namespace ClashOfSnakes
         /// <param name="height">Height of the map, BLOCKS</param>
         /// <param name="edge">Length of the edge of a block, PIXELS</param>
         public Player(SnakeColor clr, int width, int height, int edge)
-        {            
+        {
             mapWidth = width;
             mapHeight = height;
             blockEdge = edge;
@@ -140,7 +133,7 @@ namespace ClashOfSnakes
             else
             {
                 moveTail();
-                return moveHead(direc);                
+                return moveHead(direc);
             }
         }
 
@@ -271,7 +264,7 @@ namespace ClashOfSnakes
             {
                 case 0: //body is to the right from the tail
                     tailX = tailX + 1;
-                    switch(map[tailX, tailY].y)
+                    switch (map[tailX, tailY].y)
                     {
                         case 0:
                             map[tailX, tailY] = new PartID(2, 0);
@@ -286,7 +279,7 @@ namespace ClashOfSnakes
                     break;
                 case 1: //body is below the tail
                     tailY = tailY + 1;
-                    switch(map[tailX, tailY].y)
+                    switch (map[tailX, tailY].y)
                     {
                         case 1:
                             map[tailX, tailY] = new PartID(2, 1);
@@ -301,7 +294,7 @@ namespace ClashOfSnakes
                     break;
                 case 2: //body is to the left from the tail
                     tailX = tailX - 1;
-                    switch(map[tailX, tailY].y)
+                    switch (map[tailX, tailY].y)
                     {
                         case 0:
                             map[tailX, tailY] = new PartID(2, 2);
@@ -316,7 +309,7 @@ namespace ClashOfSnakes
                     break;
                 case 3: //body is above the tail
                     tailY = tailY - 1;
-                    switch(map[tailX, tailY].y)
+                    switch (map[tailX, tailY].y)
                     {
                         case 1:
                             map[tailX, tailY] = new PartID(2, 3);
@@ -345,7 +338,7 @@ namespace ClashOfSnakes
             public byte x;
             public byte y;
             public bool valid;
-        }       
+        }
     }
     enum SnakeColor
     {

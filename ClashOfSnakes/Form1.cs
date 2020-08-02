@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -8,10 +7,8 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 
 namespace ClashOfSnakes
 {
@@ -119,7 +116,7 @@ namespace ClashOfSnakes
             addr.Visible = false;
             Controls.Add(addr);
 
-            info = new Label();            
+            info = new Label();
             info.Font = new Font("Arial", 20);
             info.Height = 40;
             info.Width = 550;
@@ -224,7 +221,7 @@ namespace ClashOfSnakes
             {
                 validMessage = false;
                 t1.Stop();
-                if (sc.gameOver) waitForReset.Start();                
+                if (sc.gameOver) waitForReset.Start();
                 else t2.Start();
             }
         }
@@ -378,7 +375,7 @@ namespace ClashOfSnakes
                 waitForReset.Stop();
                 connectWait.Stop();
                 waitForSeed.Stop();
-                L1.Visible = false; 
+                L1.Visible = false;
                 L2.Visible = false;
                 info.Text = "Enter opponent's IP address and Connect:";
                 info.Visible = true;
@@ -387,17 +384,17 @@ namespace ClashOfSnakes
                 game = null;
                 directionA = Direction.right;
                 directionB = Direction.left;
-                validMessage = false;                       
+                validMessage = false;
                 me = whoAmI.playerB;
                 dataIn = null;
-                dataOut = null;                
+                dataOut = null;
                 listener?.Stop();
                 listener = null;
                 connectionFail = false;
-                multi = true;                
+                multi = true;
                 seedRecFailed = false;
                 seedReceived = false;
-                
+
                 dontChangeDirection = false;
                 client?.Close();
                 client = null;
@@ -408,7 +405,7 @@ namespace ClashOfSnakes
                 addr.Visible = false;
                 IPAddress ad;
                 if (IPAddress.TryParse(addr.Text, out ad))
-                {                    
+                {
                     info.Text = "Connecting to " + ad.ToString() + "...";
                     dataIn = null;
                     dataOut = null;
@@ -456,7 +453,7 @@ namespace ClashOfSnakes
                 info.Text = "Connection failed!";
                 return;
             }
-            if (dataIn != null) 
+            if (dataIn != null)
             {
                 connectWait.Stop();
                 seedReceived = false;
@@ -526,7 +523,7 @@ namespace ClashOfSnakes
             waiting.Stop();
             connectWait.Stop();
             waitForSeed.Stop();
-            L1.Visible = false; 
+            L1.Visible = false;
             L2.Visible = false;
             info.Text = "";
             info.Visible = true;
@@ -534,23 +531,23 @@ namespace ClashOfSnakes
             game = null;
             directionA = Direction.right;
             directionB = Direction.left;
-            validMessage = false;                       
+            validMessage = false;
             me = whoAmI.playerA;
             dataOut = null;
-            dataIn = null;            
+            dataIn = null;
             listener?.Stop();
             listener = null;
             connectionFail = false;
-            multi = true;            
+            multi = true;
             seedReceived = false;
-            seedRecFailed = false;            
+            seedRecFailed = false;
             dontChangeDirection = false;
             client?.Close();
             client = null;
             this.Invalidate();
-            
+
             if (!NetworkInterface.GetIsNetworkAvailable()) //check for network
-            {                
+            {
                 info.Text = "No network detected!";
                 return;
             }
@@ -586,29 +583,29 @@ namespace ClashOfSnakes
             waiting.Stop();
             connectWait.Stop();
             waitForSeed.Stop();
-            L1.Text = "0"; 
+            L1.Text = "0";
             L1.Visible = true;
             L2.Visible = false;
             info.Visible = false;
             addr.Visible = false;
             directionA = Direction.right;
-            validMessage = true;                  
+            validMessage = true;
             me = whoAmI.playerA;
             dataOut = null;
-            dataIn = null;            
+            dataIn = null;
             listener?.Stop();
             listener = null;
             connectionFail = false;
-            multi = false;            
+            multi = false;
             seedReceived = false;
-            seedRecFailed = false;            
+            seedRecFailed = false;
             dontChangeDirection = false;
             t1.Interval = delay + read;
             client?.Close();
             client = null;
 
             Random r = new Random();
-            game = new SinglePGame(mapWidth, mapHeight, blockEdge, r.Next());            
+            game = new SinglePGame(mapWidth, mapHeight, blockEdge, r.Next());
             t1.Start();
             this.Invalidate();
         }
@@ -623,7 +620,7 @@ namespace ClashOfSnakes
             this.ClientSize = new Size(mapWidth, mapHeight + 100);
             this.BackColor = Color.Black;
             this.Icon = Properties.Resources.icon;
-            makeUI();            
+            makeUI();
         }
 
         /// <summary>

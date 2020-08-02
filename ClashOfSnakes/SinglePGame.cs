@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ClashOfSnakes
 {
@@ -31,7 +26,7 @@ namespace ClashOfSnakes
         /// <param name="edge">Length of the edge of a block, PIXELS, must divide width and height</param>
         public SinglePGame(int width, int height, int edge, int rndseed)
         {
-            if (width % edge != 0 || height % edge != 0) throw new ArgumentException();            
+            if (width % edge != 0 || height % edge != 0) throw new ArgumentException();
             mapWidth = width / edge;
             mapHeight = height / edge;
             blockEdge = edge;
@@ -39,7 +34,7 @@ namespace ClashOfSnakes
             mapf = new Thing[mapWidth, mapHeight];
             rnd = new Random(rndseed);
             placeWalls();
-            placeAllFood();            
+            placeAllFood();
         }
 
         /// <summary>
@@ -82,7 +77,7 @@ namespace ClashOfSnakes
         private void placeAllFood()
         {
             int done = 0;
-            while(done < foodCount)
+            while (done < foodCount)
             {
                 int x = rnd.Next(mapWidth);
                 int y = rnd.Next(mapHeight);
@@ -104,7 +99,7 @@ namespace ClashOfSnakes
             {
                 int x = rnd.Next(mapWidth);
                 int y = rnd.Next(mapHeight);
-                if(!playerA.Occupies(x, y) && mapf[x, y] == Thing.nothing)
+                if (!playerA.Occupies(x, y) && mapf[x, y] == Thing.nothing)
                 {
                     mapf[x, y] = Thing.food;
                     go = false;
