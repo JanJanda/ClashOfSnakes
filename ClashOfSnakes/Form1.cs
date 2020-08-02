@@ -372,7 +372,13 @@ namespace ClashOfSnakes
         {
             if (!addr.Visible)
             {
-                L1.Visible = false; //config UI
+                t1.Stop(); //config UI
+                t2.Stop();
+                waiting.Stop();
+                waitForReset.Stop();
+                connectWait.Stop();
+                waitForSeed.Stop();
+                L1.Visible = false; 
                 L2.Visible = false;
                 info.Text = "Enter opponent's IP address and Connect:";
                 info.Visible = true;
@@ -381,22 +387,17 @@ namespace ClashOfSnakes
                 game = null;
                 directionA = Direction.right;
                 directionB = Direction.left;
-                validMessage = false;
-                t1.Stop();
-                t2.Stop();
-                waitForReset.Stop();
+                validMessage = false;                       
                 me = whoAmI.playerB;
                 dataIn = null;
-                dataOut = null;
-                waiting.Stop();
+                dataOut = null;                
                 listener?.Stop();
                 listener = null;
                 connectionFail = false;
-                multi = true;
-                connectWait.Stop();
+                multi = true;                
                 seedRecFailed = false;
                 seedReceived = false;
-                waitForSeed.Stop();
+                
                 dontChangeDirection = false;
                 client?.Close();
                 client = null;
@@ -519,7 +520,13 @@ namespace ClashOfSnakes
         /// <param name="e"></param>
         private void Create_Click(object sender, EventArgs e)
         {
-            L1.Visible = false; //config UI
+            t1.Stop(); //config UI
+            t2.Stop();
+            waitForReset.Stop();
+            waiting.Stop();
+            connectWait.Stop();
+            waitForSeed.Stop();
+            L1.Visible = false; 
             L2.Visible = false;
             info.Text = "";
             info.Visible = true;
@@ -527,22 +534,16 @@ namespace ClashOfSnakes
             game = null;
             directionA = Direction.right;
             directionB = Direction.left;
-            validMessage = false;
-            t1.Stop();
-            t2.Stop();
-            waitForReset.Stop();
+            validMessage = false;                       
             me = whoAmI.playerA;
             dataOut = null;
-            dataIn = null;
-            waiting.Stop();
+            dataIn = null;            
             listener?.Stop();
             listener = null;
             connectionFail = false;
-            multi = true;
-            connectWait.Stop();
+            multi = true;            
             seedReceived = false;
-            seedRecFailed = false;
-            waitForSeed.Stop();
+            seedRecFailed = false;            
             dontChangeDirection = false;
             client?.Close();
             client = null;
@@ -579,28 +580,28 @@ namespace ClashOfSnakes
         /// <param name="e"></param>
         private void Single_Click(object sender, EventArgs e)
         {
-            L1.Text = "0"; //config UI
+            t1.Stop(); //config UI
+            t2.Stop();
+            waitForReset.Stop();
+            waiting.Stop();
+            connectWait.Stop();
+            waitForSeed.Stop();
+            L1.Text = "0"; 
             L1.Visible = true;
             L2.Visible = false;
             info.Visible = false;
             addr.Visible = false;
             directionA = Direction.right;
-            validMessage = true;
-            t1.Stop();
-            t2.Stop();
-            waitForReset.Stop();
+            validMessage = true;                  
             me = whoAmI.playerA;
             dataOut = null;
-            dataIn = null;
-            waiting.Stop();
+            dataIn = null;            
             listener?.Stop();
             listener = null;
             connectionFail = false;
-            multi = false;
-            connectWait.Stop();
+            multi = false;            
             seedReceived = false;
-            seedRecFailed = false;
-            waitForSeed.Stop();
+            seedRecFailed = false;            
             dontChangeDirection = false;
             t1.Interval = delay + read;
             client?.Close();
