@@ -498,6 +498,7 @@ namespace ClashOfSnakes
                 t2.Stop();
                 waitForSeed.Stop();
                 game = new MultiPGame(mapWidth, mapHeight, blockEdge, receivedSeed);
+                Invalidate();
                 me = whoAmI.playerB;
                 multi = true;
                 info.Visible = false;
