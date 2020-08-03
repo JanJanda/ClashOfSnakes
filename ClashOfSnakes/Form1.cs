@@ -565,7 +565,15 @@ namespace ClashOfSnakes
 
             info.Text = "Waiting for opponent..."; //start polling network
             listener = new TcpListener(IPAddress.Any, port);
-            listener.Start();
+            try
+            {
+                listener.Start();
+            }
+            catch (SocketException)
+            {
+                info.Text = "Socket is busy!";
+                return;
+            }
             waiting.Start();
         }
 
