@@ -338,3 +338,9 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# LaTex auxiliary files
+Documentation/*.aux
+Documentation/*.log
+Documentation/*.synctex.gz
+Documentation/ClashOfSnakes.pdf

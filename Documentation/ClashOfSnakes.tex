@@ -1,0 +1,38 @@
+ \documentclass[12pt]{article}
+ \usepackage[top=1cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+ \usepackage{indentfirst}
+ \title{Dokumentace k zápočtovému programu ze C\# a .NET I (NPRG035 a NPRG038)}
+ \date{3. 8. 2020}
+ \author{Jan Janda}
+ \begin{document}
+ \maketitle
+ 
+ \section*{Použití programu}
+
+ Tento program je obdobou klasické hry Had. Může být použit jako singleplayer nebo multiplayer pro dva hráče. Tato verze hry nemá vytyčené explicitní cíle, kterých by se hráč měl snažit dosáhnout. Místo toho poskytuje herní svět s danými pravidly a ponechává prostor hráčské kreativitě. Hráč se může například rozhodnout dosáhnout co nejvyššího skóre pomocí pojídání potravy, nebo se může snažit dohnat protihráče co nejdříve k nárazu do překážky, alternativně mohou oba hráči spolupracovat a prodlužovat své hady tak dlouho, dokud se dokáží vyhýbat svým stále delším ocasům. Hra neklade žádná omezení na volnost rozhodování.
+ 
+ Pohyb hada se ovládá intuitivně pomocí kláves \texttt{W A S D}. Had se pohybuje po mapě. Pokud hlava najede na krmení v podobě kulatého modro-žlutého kolečka, pak se zvýší skóre a had se prodlouží. Hra skončí, pokud had narazí do vlastního ocasu, jiného hada nebo zdi. Obvodová hranice je průchozí.
+ 
+ Hra se používá pomocí trojice tlačítek. Tlačítko \texttt{Singleplayer} vytvoří hru pro jednoho hráče. Tlačítko \texttt{Create Multiplayer} vytvoří hru pro dva hráče a začne naslouchat na síti v očekávání protihráče. Hra začne jakmile se protihráč připojí. Tlačítko \texttt{Connect} se nejprve zeptá uživatele na IP adresu čekajícího protihráče a po zadání této adresy a opětovném stisknutí tohoto tlačítka se pokusí připojit. Hra začne jakmile se podaří připojit. Připojení je možné na lokální síti.
+ 
+ \section*{Implementace}
+ 
+ Implementace je založena na principech událostmi řízeného programování. Obsluhu událostí zajišťují metody ve třídě \texttt{GameWindow}. Tato třída zprostředkovává svět událostí a uživatelských vstupů dalším částem programu a tvoří tím vrchol pomyslné hierarchie řízení a komunikace programu. Uživatelské rozhraní se v žádné situaci nezablokuje, protože dlouhotrvající operace jsou prováděny asynchronně.
+ 
+ \subsection*{Hierarchie vzájemného řízení, komunikace a dědičnosti}
+ 
+ Hierarchie řízení a komunikace mezi instancemi různých tříd se realizuje tak, že nadřízená třída řídí pouze své bezprostředně podřízené třídy, na jejichž instance má uložené reference. Řízením se rozumí volání veřejných metod instance podřízené třídy a komunikace se provádí předáváním dat mezi nadřízenou a podřízenou třídou. Do podřízené třídy se data dostávají jako parametry volání veřejných metod a do nadřízené se data vracejí jako návratové hodnoty takových metod nebo čtením vlastností. Konkrétně zde je sestupná hierarchie tříd takto: \texttt{GameWindow}, \texttt{SinglePGame} a \texttt{MultiPGame}, \texttt{Player}. To mimo jiné znamená, že \texttt{GameWindow} neřídí \texttt{Player}, protože je sice nadřízená, ale nikoli bezprostředně.
+ 
+ Třída \texttt{MultiPGame} je potomkem třídy \texttt{SinglePGame} a její veřejné metody jsou overridem virtuálních veřejných metod tohoto předchůdce. Díky tomu se nadřízená třída \texttt{GameWindow} nemusí starat o to, jakou konkrétní instanci herní třídy má uloženou a může se spolehnout na správné funkce jejích veřejných metod.
+ 
+ \subsection*{Obsluhy událostí, síťové spojení, a herní smyčka}
+ 
+ Obslužné metody pro události stisknutí tlačítek obsahují na svém začátku dlouhý kód, který nastaví datové položky na předepsané hodnoty a uvede tím program do správného výchozího stavu pro další činnost.
+ 
+ Navázání spojení ze strany serveru je zahájeno stisknutím tlačítka \texttt{Create Multiplayer}. Po kliknutí se nejprve nakonfiguruje program, zkontroluje se síťové přípojení, oznámí se uživateli, jaké má jeho počítač IP adresy, vytvoří se instance třídy \texttt{TcpListener}, zahájí se naslouchání a spustí se časovač \texttt{waiting}. Časovač \texttt{waiting} pravidelně kontroluje, zda se chce někdo připojit. Pokud se chce někdo připojit, pak s ním naváže spojení. Poté vytvoří novou hru pro dva hráče, vygeneruje a odešle protihráči seed pro vytvoření hry a zahájí herní smyčku spuštěním časovače \texttt{t2}.
+ 
+ Připojení k čekajícímu protihráči se zahájí stisknutím tlačítka \texttt{Connect}. Po prvním stisknutí tohoto tlačítka se zobrazí dotaz na IP adresu protihráče. Druhým stisknutím se potvrdí zadaná adresa. Poté se asynchronně zahájí připojování a spustí se časovač \texttt{connectWait}. Časovač pravidelně kontroluje výsledek asynchronního připojování dokud neuplyne nastavený počet pokusů. Pokud se podaří navázat spojení, je očekáván seed pro vytvoření hry. Zahájí se asynchronní čtení ze sítě a spustí se časovač \texttt{waitForSeed}. Časovač pravidelně kontroluje, zda již byl přijat seed. Pokud by přijat, je na jeho základě vytvořena hra a zahájena herní smyčka spuštěním časovače \texttt{t2}.
+ 
+ Herní smyčka v multiplayeru je realizována dvěma časovači \texttt{t1} a \texttt{t2}. Interval \texttt{t1} je nastaven na konstantu \texttt{read} a \texttt{t2} na konstantu \texttt{delay}. Nejprve se spustí \texttt{t2}. Během jeho intervalu má hráč možnosti stiskem klávesy zvolit směr pohybu svého hada. Při dokončení intervalu je provedený tah odeslán a zahájí se asynchronní čtení soupeřova tahu. Časovač \texttt{t2} se zastaví a spustí se \texttt{t1}. Po uplynutí intervalu \texttt{t1} se buď přečte tah soupeře, nebo se zahájí další interval \texttt{t1}, podle toho, zda tah soupeře dorazil. Pokud tah soupeře dorazil, tak se provede, \texttt{t1} se zastaví a \texttt{t2} se spustí. V případě singleplayeru se používá pouze časovač \texttt{t1} s intervalem $\texttt{delay} + \texttt{read}.$
+ 
+ \end{document}
