@@ -16,11 +16,9 @@ namespace ClashOfSnakes
     {
         const int delay = 180; //constants for game configuration
         const int read = 20;
-        const int resetTime = 5000;
         const int mapWidth = 1000;
         const int mapHeight = 800;
         const int blockEdge = 20;
-        const int port = 52217;
         Button connect;
         Button create;
         Button single;
@@ -36,21 +34,11 @@ namespace ClashOfSnakes
         Timer t1;
         Timer t2;
         whoAmI me;
-        StreamWriter dataOut;
-        StreamReader dataIn;
-        Timer waiting;
-        TcpListener listener;
         bool connectionFail;
         bool multi;
-        Timer connectWait;
         int receivedSeed;
-        bool seedReceived;
-        bool seedRecFailed;
-        Timer waitForSeed;
-        int connectAttempts;
         bool dontChangeDirection;
-        TcpClient client;
-        Timer waitForReset;
+        Networking net;
 
         public GameWindow()
         {
@@ -130,22 +118,6 @@ namespace ClashOfSnakes
 
             t2 = new Timer();
             t2.Tick += T2_Tick;
-
-            waiting = new Timer();
-            waiting.Interval = 1000;
-            waiting.Tick += Waiting_Tick;
-
-            connectWait = new Timer();
-            connectWait.Interval = 1000;
-            connectWait.Tick += ConnectWait_Tick;
-
-            waitForSeed = new Timer();
-            waitForSeed.Interval = 500;
-            waitForSeed.Tick += WaitForSeed_Tick;
-
-            waitForReset = new Timer();
-            waitForReset.Interval = resetTime;
-            waitForReset.Tick += WaitForReset_Tick;
         }
 
         /// <summary>
@@ -177,15 +149,18 @@ namespace ClashOfSnakes
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void WaitForReset_Tick(object sender, EventArgs e)
+        private void Reset()
         {
-            waitForReset.Stop();
+            DialogResult a = MessageBox.Show("Game Over!", "Clash Of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             directionA = Direction.right;
             directionB = Direction.left;
+            L1.Text = "0";
+            L2.Text = "0";
             if (game != null)
             {
                 game.Reset();
-                t2.Start();
+                if (multi) t2.Start();
+                else t1.Start();
             }
             Invalidate();
         }
@@ -216,13 +191,18 @@ namespace ClashOfSnakes
             L1.Text = sc.A.ToString();
             L2.Text = sc.B.ToString();
             Invalidate();
+            if (sc.gameOver)
+            {
+                t1.Stop();
+                Reset();
+                return;
+            }
 
             if (multi)
             {
                 validMessage = false;
                 t1.Stop();
-                if (sc.gameOver) waitForReset.Start();
-                else t2.Start();
+                t2.Start();
             }
         }
 
@@ -236,8 +216,8 @@ namespace ClashOfSnakes
             t2.Stop();
             dontChangeDirection = true;
             writeNet();
-            Task.Run(readNet);
-            t1.Start();
+            readNetAsync();
+            t1.Start(); // MISTO DVOU CASOVACU POUZIT ASYNC
         }
 
         /// <summary>
@@ -253,16 +233,16 @@ namespace ClashOfSnakes
                 switch (tmp)
                 {
                     case Direction.up:
-                        dataOut.WriteLine("w");
+                        net.dataOut.WriteLine("w");
                         break;
                     case Direction.left:
-                        dataOut.WriteLine("a");
+                        net.dataOut.WriteLine("a");
                         break;
                     case Direction.down:
-                        dataOut.WriteLine("s");
+                        net.dataOut.WriteLine("s");
                         break;
                     case Direction.right:
-                        dataOut.WriteLine("d");
+                        net.dataOut.WriteLine("d");
                         break;
                 }
             }
@@ -275,12 +255,12 @@ namespace ClashOfSnakes
         /// <summary>
         /// Reads incoming data about move of the opponent.
         /// </summary>
-        private void readNet()
+        private async void readNetAsync()
         {
             string s;
             try
             {
-                s = dataIn.ReadLine();
+                s = await net.dataIn.ReadLineAsync();
             }
             catch (IOException)
             {
@@ -329,7 +309,7 @@ namespace ClashOfSnakes
             Random r = new Random();
             int seed = r.Next();
             game = new MultiPGame(mapWidth, mapHeight, blockEdge, seed);
-            dataOut.WriteLine(seed);
+            net.dataOut.WriteLine(seed);
             multi = true;
             t1.Interval = read;
             t1.Stop();
@@ -339,42 +319,18 @@ namespace ClashOfSnakes
         }
 
         /// <summary>
-        /// Checks network for connecting opponent.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Waiting_Tick(object sender, EventArgs e)
-        {
-            if (listener != null && listener.Pending())
-            {
-                client = listener.AcceptTcpClient();
-                client.NoDelay = true;
-                Stream s = client.GetStream();
-                dataIn = new StreamReader(s);
-                dataOut = new StreamWriter(s);
-                dataOut.AutoFlush = true;
-                listener.Stop();
-                waiting.Stop();
-                me = whoAmI.playerA;
-                beginMultiplayer();
-            }
-        }
-
-        /// <summary>
         /// Connect button click event handeler. Initiates client connection to a game server.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Connect_Click(object sender, EventArgs e)
+        private async void Connect_Click(object sender, EventArgs e)
         {
             if (!addr.Visible)
             {
                 t1.Stop(); //config UI
                 t2.Stop();
-                waiting.Stop();
-                waitForReset.Stop();
-                connectWait.Stop();
-                waitForSeed.Stop();
+                net?.RenewAll();
+                net = null;
                 L1.Visible = false;
                 L2.Visible = false;
                 info.Text = "Enter opponent's IP address and Connect:";
@@ -386,18 +342,9 @@ namespace ClashOfSnakes
                 directionB = Direction.left;
                 validMessage = false;
                 me = whoAmI.playerB;
-                dataIn = null;
-                dataOut = null;
-                listener?.Stop();
-                listener = null;
                 connectionFail = false;
                 multi = true;
-                seedRecFailed = false;
-                seedReceived = false;
-
                 dontChangeDirection = false;
-                client?.Close();
-                client = null;
                 Invalidate();
             }
             else
@@ -406,108 +353,42 @@ namespace ClashOfSnakes
                 if (IPAddress.TryParse(addr.Text, out IPAddress ad))
                 {
                     info.Text = "Connecting to " + ad.ToString() + "...";
-                    dataIn = null;
-                    dataOut = null;
-                    connectAttempts = 20;
-                    connectWait.Start();
-                    Task.Run(() => makeConnection(ad));
+                    net = new Networking();
+                    try
+                    {
+                        await net.ConnectToChallengerAsync(ad);
+                        receivedSeed = int.Parse(net.dataIn.ReadLine());                        
+                    }
+                    catch (SocketException)
+                    {
+                        info.Text = "Connection failed!";
+                        return;
+                    }
+                    catch (IOException)
+                    {
+                        info.Text = "Connection lost!";
+                        return;
+                    }
+                    BeginClienMultiplayer();
                 }
                 else info.Text = "Can not understand the address!";
             }
         }
 
-
-        /// <summary>
-        /// Tries to make connection to a game server on the given IP address.
-        /// </summary>
-        /// <param name="a">The IP address to connect to</param>
-        private void makeConnection(IPAddress a)
+        private void BeginClienMultiplayer()
         {
-            client = new TcpClient();
-            client.NoDelay = true;
-            try
-            {
-                client.Connect(a, port);
-            }
-            catch (SocketException)
-            {
-                return;
-            }
-            Stream s = client.GetStream();
-            dataIn = new StreamReader(s);
-            dataOut = new StreamWriter(s);
-            dataOut.AutoFlush = true;
-        }
-
-        /// <summary>
-        /// Checks if the connection as a client was successful. Takes only set number of attempts.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ConnectWait_Tick(object sender, EventArgs e)
-        {
-            if (connectAttempts < 0)
-            {
-                connectWait.Stop();
-                info.Text = "Connection failed!";
-                return;
-            }
-            if (dataIn != null)
-            {
-                connectWait.Stop();
-                seedReceived = false;
-                seedRecFailed = false;
-                waitForSeed.Start();
-                Task.Run(receiveSeed);
-            }
-            connectAttempts--;
-        }
-
-        /// <summary>
-        /// Receives the game seed from the connected server.
-        /// </summary>
-        private void receiveSeed()
-        {
-            try
-            {
-                receivedSeed = int.Parse(dataIn.ReadLine());
-                seedReceived = true;
-            }
-            catch (IOException)
-            {
-                seedRecFailed = true;
-            }
-        }
-
-        /// <summary>
-        /// Handles the received game seed from the game server.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void WaitForSeed_Tick(object sender, EventArgs e)
-        {
-            if (seedRecFailed)
-            {
-                waitForSeed.Stop();
-                info.Text = "Connection lost!";
-                return;
-            }
-            if (seedReceived)
-            {
-                t1.Stop();
-                t2.Stop();
-                waitForSeed.Stop();
-                game = new MultiPGame(mapWidth, mapHeight, blockEdge, receivedSeed);
-                Invalidate();
-                me = whoAmI.playerB;
-                multi = true;
-                info.Visible = false;
-                L1.Visible = true;
-                L2.Visible = true;
-                t1.Interval = read;
-                t2.Interval = delay;
-                t2.Start();
-            }
+            t1.Stop();
+            t2.Stop();
+            game = new MultiPGame(mapWidth, mapHeight, blockEdge, receivedSeed);
+            Invalidate();
+            me = whoAmI.playerB;
+            multi = true;
+            info.Visible = false;
+            L1.Visible = true;
+            L2.Visible = true;
+            t1.Interval = read;
+            t2.Interval = delay;
+            t2.Start();
         }
 
         /// <summary>
@@ -515,14 +396,12 @@ namespace ClashOfSnakes
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Create_Click(object sender, EventArgs e)
+        private async void Create_Click(object sender, EventArgs e)
         {
             t1.Stop(); //config UI
             t2.Stop();
-            waitForReset.Stop();
-            waiting.Stop();
-            connectWait.Stop();
-            waitForSeed.Stop();
+            net?.RenewAll();
+            net = null;
             L1.Visible = false;
             L2.Visible = false;
             info.Text = "";
@@ -533,17 +412,9 @@ namespace ClashOfSnakes
             directionB = Direction.left;
             validMessage = false;
             me = whoAmI.playerA;
-            dataOut = null;
-            dataIn = null;
-            listener?.Stop();
-            listener = null;
             connectionFail = false;
             multi = true;
-            seedReceived = false;
-            seedRecFailed = false;
             dontChangeDirection = false;
-            client?.Close();
-            client = null;
             Invalidate();
 
             if (!NetworkInterface.GetIsNetworkAvailable()) //check for network
@@ -552,8 +423,9 @@ namespace ClashOfSnakes
                 return;
             }
 
-            IPAddress[] options = Dns.GetHostAddresses(Dns.GetHostName()); //show available addresses of this computer
-            IEnumerable<string> ipv4addrs = from a in options where a.AddressFamily == AddressFamily.InterNetwork select a.ToString() + "\n";
+            net = new Networking();
+
+            IEnumerable<string> ipv4addrs = net.MyAddresses();
             string preamble = "This computer has these addresses:\n\n";
             string opt = "no address available";
             if (ipv4addrs.Count() > 0)
@@ -564,17 +436,15 @@ namespace ClashOfSnakes
             Task.Run(() => MessageBox.Show(preamble + opt, "Clash of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Information));
 
             info.Text = "Waiting for opponent..."; //start polling network
-            listener = new TcpListener(IPAddress.Any, port);
             try
             {
-                listener.Start();
+                await net.AcceptOpponentAsync();
             }
             catch (SocketException)
             {
                 info.Text = "Socket is busy!";
-                return;
             }
-            waiting.Start();
+            beginMultiplayer();
         }
 
 
@@ -587,10 +457,8 @@ namespace ClashOfSnakes
         {
             t1.Stop(); //config UI
             t2.Stop();
-            waitForReset.Stop();
-            waiting.Stop();
-            connectWait.Stop();
-            waitForSeed.Stop();
+            net?.RenewAll();
+            net = null;
             L1.Text = "0";
             L1.Visible = true;
             L2.Visible = false;
@@ -599,18 +467,10 @@ namespace ClashOfSnakes
             directionA = Direction.right;
             validMessage = true;
             me = whoAmI.playerA;
-            dataOut = null;
-            dataIn = null;
-            listener?.Stop();
-            listener = null;
             connectionFail = false;
             multi = false;
-            seedReceived = false;
-            seedRecFailed = false;
             dontChangeDirection = false;
             t1.Interval = delay + read;
-            client?.Close();
-            client = null;
 
             Random r = new Random();
             game = new SinglePGame(mapWidth, mapHeight, blockEdge, r.Next());
