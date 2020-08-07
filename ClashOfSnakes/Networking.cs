@@ -15,24 +15,30 @@ namespace ClashOfSnakes
         const int port = 52217;
         TcpListener listener;
         TcpClient client;
+        CancellationTokenSource cts;
         public StreamWriter dataOut { get; private set; }
         public StreamReader dataIn { get; private set; }
+        bool connectFinished;
 
         public void RenewAll()
         {
+            cts?.Cancel();
             dataIn?.Dispose();
             dataOut?.Dispose();
-            client?.Close();
-            listener?.Stop();            
+            if (connectFinished) client?.Close();
+            listener?.Stop();
         }
 
         public async Task AcceptOpponentAsync()
         {
-            RenewAll();
+            cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+
             listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
             client = await listener.AcceptTcpClientAsync();
             listener.Stop();
+            token.ThrowIfCancellationRequested();
             client.NoDelay = true;
             Stream s = client.GetStream();
             dataIn = new StreamReader(s);
@@ -42,9 +48,18 @@ namespace ClashOfSnakes
 
         public async Task ConnectToChallengerAsync(IPAddress adr)
         {
-            RenewAll();
+            cts = new CancellationTokenSource();
+            CancellationToken token = cts.Token;
+            
             client = new TcpClient();
+            connectFinished = false;
             await client.ConnectAsync(adr, port);
+            connectFinished = true;
+            if (token.IsCancellationRequested)
+            {
+                client.Close();
+                throw new OperationCanceledException();
+            }
             client.NoDelay = true;
             Stream s = client.GetStream();
             dataIn = new StreamReader(s);

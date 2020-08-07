@@ -330,7 +330,7 @@ namespace ClashOfSnakes
                 t1.Stop(); //config UI
                 t2.Stop();
                 net?.RenewAll();
-                net = null;
+                net = new Networking();
                 L1.Visible = false;
                 L2.Visible = false;
                 info.Text = "Enter opponent's IP address and Connect:";
@@ -353,7 +353,6 @@ namespace ClashOfSnakes
                 if (IPAddress.TryParse(addr.Text, out IPAddress ad))
                 {
                     info.Text = "Connecting to " + ad.ToString() + "...";
-                    net = new Networking();
                     try
                     {
                         await net.ConnectToChallengerAsync(ad);
@@ -369,6 +368,10 @@ namespace ClashOfSnakes
                         info.Text = "Connection lost!";
                         return;
                     }
+                    catch (OperationCanceledException)
+                    {
+                        return;
+                    }                    
                     BeginClienMultiplayer();
                 }
                 else info.Text = "Can not understand the address!";
@@ -401,7 +404,7 @@ namespace ClashOfSnakes
             t1.Stop(); //config UI
             t2.Stop();
             net?.RenewAll();
-            net = null;
+            net = new Networking();
             L1.Visible = false;
             L2.Visible = false;
             info.Text = "";
@@ -423,8 +426,6 @@ namespace ClashOfSnakes
                 return;
             }
 
-            net = new Networking();
-
             IEnumerable<string> ipv4addrs = net.MyAddresses();
             string preamble = "This computer has these addresses:\n\n";
             string opt = "no address available";
@@ -435,7 +436,7 @@ namespace ClashOfSnakes
             }
             Task.Run(() => MessageBox.Show(preamble + opt, "Clash of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Information));
 
-            info.Text = "Waiting for opponent..."; //start polling network
+            info.Text = "Waiting for opponent...";
             try
             {
                 await net.AcceptOpponentAsync();
@@ -443,6 +444,15 @@ namespace ClashOfSnakes
             catch (SocketException)
             {
                 info.Text = "Socket is busy!";
+                return;
+            }
+            catch (OperationCanceledException) 
+            {
+                return;
+            }
+            catch (ObjectDisposedException)
+            {
+                return;
             }
             beginMultiplayer();
         }
@@ -458,7 +468,6 @@ namespace ClashOfSnakes
             t1.Stop(); //config UI
             t2.Stop();
             net?.RenewAll();
-            net = null;
             L1.Text = "0";
             L1.Visible = true;
             L2.Visible = false;
