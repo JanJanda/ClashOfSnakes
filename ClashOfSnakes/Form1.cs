@@ -318,7 +318,7 @@ namespace ClashOfSnakes
                     try
                     {
                         await net.ConnectToChallengerAsync(ad);
-                        receivedSeed = int.Parse(net.DataIn.ReadLine());
+                        receivedSeed = int.Parse(await net.DataIn.ReadLineAsync());
                     }
                     catch (SocketException)
                     {
@@ -351,6 +351,8 @@ namespace ClashOfSnakes
             me = WhoAmI.playerB;
             multi = true;
             info.Visible = false;
+            L1.Text = "0";
+            L2.Text = "0";
             L1.Visible = true;
             L2.Visible = true;
             t1.Start();
