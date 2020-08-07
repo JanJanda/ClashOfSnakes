@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,9 +15,9 @@ namespace ClashOfSnakes
         TcpListener listener;
         TcpClient client;
         CancellationTokenSource cts;
-        public StreamWriter dataOut { get; private set; }
-        public StreamReader dataIn { get; private set; }
-        bool connectFinished;
+        public StreamWriter DataOut { get; private set; } //network stream for sending data
+        public StreamReader DataIn { get; private set; } //network stream for receiving data
+        bool connectFinished; //tells if the method ConnectToChallenger is awaiting connecion
 
         /// <summary>
         /// Releases all resources used by this instance of networking.
@@ -26,8 +25,8 @@ namespace ClashOfSnakes
         public void RenewAll()
         {
             cts?.Cancel();
-            dataIn?.Dispose();
-            dataOut?.Dispose();
+            DataIn?.Dispose();
+            DataOut?.Dispose();
             if (connectFinished) client?.Close(); //needs to be closed depending on assynchronous attempt for a connection
             listener?.Stop();
         }
@@ -49,9 +48,9 @@ namespace ClashOfSnakes
             token.ThrowIfCancellationRequested();
             client.NoDelay = true;
             Stream s = client.GetStream();
-            dataIn = new StreamReader(s);
-            dataOut = new StreamWriter(s);
-            dataOut.AutoFlush = true;                 
+            DataIn = new StreamReader(s);
+            DataOut = new StreamWriter(s);
+            DataOut.AutoFlush = true;
         }
 
         /// <summary>
@@ -63,7 +62,7 @@ namespace ClashOfSnakes
         {
             cts = new CancellationTokenSource();
             CancellationToken token = cts.Token;
-            
+
             client = new TcpClient();
             connectFinished = false;
             await client.ConnectAsync(adr, port);
@@ -75,9 +74,9 @@ namespace ClashOfSnakes
             }
             client.NoDelay = true;
             Stream s = client.GetStream();
-            dataIn = new StreamReader(s);
-            dataOut = new StreamWriter(s);
-            dataOut.AutoFlush = true;
+            DataIn = new StreamReader(s);
+            DataOut = new StreamWriter(s);
+            DataOut.AutoFlush = true;
         }
 
         /// <summary>

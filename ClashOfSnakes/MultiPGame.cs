@@ -5,7 +5,7 @@ namespace ClashOfSnakes
     class MultiPGame : SinglePGame
     {
         Player playerB;
-        bool stretchB;
+        bool stretchB; //Tells if the playerBs snake shall be stretched in the current move.
 
         /// <summary>
         /// Creates new multi player game
@@ -49,38 +49,38 @@ namespace ClashOfSnakes
             if (!gameOver)
             {
                 gameOver = playerA.Move(direcA, stretchA) || playerB.Move(direcB, stretchB);
-                if (playerA.Occupies(playerB.headX, playerB.headY) || playerB.Occupies(playerA.headX, playerA.headY)) gameOver = true;
-                if (mapf[playerA.headX, playerA.headY] == Thing.wall || mapf[playerB.headX, playerB.headY] == Thing.wall) gameOver = true;
-                stretchA = mapf[playerA.headX, playerA.headY] == Thing.food;
-                stretchB = mapf[playerB.headX, playerB.headY] == Thing.food;
-                if (mapf[playerA.headX, playerA.headY] == Thing.food)
+                if (playerA.Occupies(playerB.HeadX, playerB.HeadY) || playerB.Occupies(playerA.HeadX, playerA.HeadY)) gameOver = true;
+                if (map[playerA.HeadX, playerA.HeadY] == ThingOnMap.wall || map[playerB.HeadX, playerB.HeadY] == ThingOnMap.wall) gameOver = true;
+                stretchA = map[playerA.HeadX, playerA.HeadY] == ThingOnMap.food;
+                stretchB = map[playerB.HeadX, playerB.HeadY] == ThingOnMap.food;
+                if (map[playerA.HeadX, playerA.HeadY] == ThingOnMap.food)
                 {
-                    addFood();
-                    mapf[playerA.headX, playerA.headY] = Thing.nothing;
+                    AddFood();
+                    map[playerA.HeadX, playerA.HeadY] = ThingOnMap.nothing;
                 }
-                if (mapf[playerB.headX, playerB.headY] == Thing.food)
+                if (map[playerB.HeadX, playerB.HeadY] == ThingOnMap.food)
                 {
-                    addFood();
-                    mapf[playerB.headX, playerB.headY] = Thing.nothing;
+                    AddFood();
+                    map[playerB.HeadX, playerB.HeadY] = ThingOnMap.nothing;
                 }
             }
 
-            return new Scores(playerA.length - 3, playerB.length - 3, gameOver);
+            return new Scores(playerA.Length - 3, playerB.Length - 3, gameOver);
         }
 
         /// <summary>
         /// Adds one piece of food
         /// </summary>
-        private void addFood()
+        private void AddFood()
         {
             bool go = true;
             while (go)
             {
                 int x = rnd.Next(mapWidth);
                 int y = rnd.Next(mapHeight);
-                if (!playerA.Occupies(x, y) && !playerB.Occupies(x, y) && mapf[x, y] == Thing.nothing)
+                if (!playerA.Occupies(x, y) && !playerB.Occupies(x, y) && map[x, y] == ThingOnMap.nothing)
                 {
-                    mapf[x, y] = Thing.food;
+                    map[x, y] = ThingOnMap.food;
                     go = false;
                 }
             }

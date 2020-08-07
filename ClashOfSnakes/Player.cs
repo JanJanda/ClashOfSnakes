@@ -13,14 +13,14 @@ namespace ClashOfSnakes
         readonly int mapHeight; //in blocks
         readonly int blockEdge; //in pixels
         int hx;
-        public int headX { get { return hx; } private set { hx = value.posMod(mapWidth); } }
+        public int HeadX { get { return hx; } private set { hx = value.PosMod(mapWidth); } }
         int hy;
-        public int headY { get { return hy; } private set { hy = value.posMod(mapHeight); } }
+        public int HeadY { get { return hy; } private set { hy = value.PosMod(mapHeight); } }
         int tx;
-        public int tailX { get { return tx; } private set { tx = value.posMod(mapWidth); } }
+        public int TailX { get { return tx; } private set { tx = value.PosMod(mapWidth); } }
         int ty;
-        public int tailY { get { return ty; } private set { ty = value.posMod(mapHeight); } }
-        public int length { get; private set; }
+        public int TailY { get { return ty; } private set { ty = value.PosMod(mapHeight); } }
+        public int Length { get; private set; }
 
         readonly PartID[,] map;
 
@@ -55,10 +55,10 @@ namespace ClashOfSnakes
                     tails[1] = Properties.Resources.tailA2;
                     tails[2] = Properties.Resources.tailA3;
                     tails[3] = Properties.Resources.tailA4;
-                    headX = 2;
-                    headY = 0;
-                    tailX = 0;
-                    tailY = 0;
+                    HeadX = 2;
+                    HeadY = 0;
+                    TailX = 0;
+                    TailY = 0;
                     map[2, 0] = new PartID(0, 0);
                     map[1, 0] = new PartID(1, 0);
                     map[0, 0] = new PartID(2, 0);
@@ -78,10 +78,10 @@ namespace ClashOfSnakes
                     tails[1] = Properties.Resources.tailB2;
                     tails[2] = Properties.Resources.tailB3;
                     tails[3] = Properties.Resources.tailB4;
-                    headX = mapWidth - 3;
-                    headY = mapHeight - 1;
-                    tailX = mapWidth - 1;
-                    tailY = mapHeight - 1;
+                    HeadX = mapWidth - 3;
+                    HeadY = mapHeight - 1;
+                    TailX = mapWidth - 1;
+                    TailY = mapHeight - 1;
                     map[mapWidth - 3, mapHeight - 1] = new PartID(0, 2);
                     map[mapWidth - 2, mapHeight - 1] = new PartID(1, 0);
                     map[mapWidth - 1, mapHeight - 1] = new PartID(2, 2);
@@ -89,7 +89,7 @@ namespace ClashOfSnakes
                 default:
                     throw new ArgumentException();
             }
-            length = 3;
+            Length = 3;
 
             parts = new Bitmap[3][];
             parts[0] = heads;
@@ -134,13 +134,13 @@ namespace ClashOfSnakes
         {
             if (stretch)
             {
-                length++;
-                return moveHead(direc);
+                Length++;
+                return MoveHead(direc);
             }
             else
             {
-                moveTail();
-                return moveHead(direc);
+                MoveTail();
+                return MoveHead(direc);
             }
         }
 
@@ -159,31 +159,31 @@ namespace ClashOfSnakes
         /// Moves the snakes head in the given direction
         /// </summary>
         /// <param name="direc">The direction of required motion</param>
-        private bool moveHead(Direction direc)
+        private bool MoveHead(Direction direc)
         {
             bool crash = false;
-            switch (map[headX, headY].y)
+            switch (map[HeadX, HeadY].y)
             {
                 case 0: //head is directed to the right
                     switch (direc)
                     {
                         case Direction.up:
-                            map[headX, headY] = new PartID(1, 2);
-                            headY--;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 3);
+                            map[HeadX, HeadY] = new PartID(1, 2);
+                            HeadY--;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 3);
                             break;
                         case Direction.down:
-                            map[headX, headY] = new PartID(1, 5);
-                            headY++;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 1);
+                            map[HeadX, HeadY] = new PartID(1, 5);
+                            HeadY++;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 1);
                             break;
                         default:
-                            map[headX, headY] = new PartID(1, 0);
-                            headX++;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 0);
+                            map[HeadX, HeadY] = new PartID(1, 0);
+                            HeadX++;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 0);
                             break;
                     }
                     break;
@@ -191,22 +191,22 @@ namespace ClashOfSnakes
                     switch (direc)
                     {
                         case Direction.left:
-                            map[headX, headY] = new PartID(1, 2);
-                            headX--;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 2);
+                            map[HeadX, HeadY] = new PartID(1, 2);
+                            HeadX--;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 2);
                             break;
                         case Direction.right:
-                            map[headX, headY] = new PartID(1, 3);
-                            headX++;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 0);
+                            map[HeadX, HeadY] = new PartID(1, 3);
+                            HeadX++;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 0);
                             break;
                         default:
-                            map[headX, headY] = new PartID(1, 1);
-                            headY++;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 1);
+                            map[HeadX, HeadY] = new PartID(1, 1);
+                            HeadY++;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 1);
                             break;
                     }
                     break;
@@ -214,22 +214,22 @@ namespace ClashOfSnakes
                     switch (direc)
                     {
                         case Direction.up:
-                            map[headX, headY] = new PartID(1, 3);
-                            headY--;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 3);
+                            map[HeadX, HeadY] = new PartID(1, 3);
+                            HeadY--;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 3);
                             break;
                         case Direction.down:
-                            map[headX, headY] = new PartID(1, 4);
-                            headY++;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 1);
+                            map[HeadX, HeadY] = new PartID(1, 4);
+                            HeadY++;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 1);
                             break;
                         default:
-                            map[headX, headY] = new PartID(1, 0);
-                            headX--;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 2);
+                            map[HeadX, HeadY] = new PartID(1, 0);
+                            HeadX--;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 2);
                             break;
                     }
                     break;
@@ -237,22 +237,22 @@ namespace ClashOfSnakes
                     switch (direc)
                     {
                         case Direction.left:
-                            map[headX, headY] = new PartID(1, 5);
-                            headX--;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 2);
+                            map[HeadX, HeadY] = new PartID(1, 5);
+                            HeadX--;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 2);
                             break;
                         case Direction.right:
-                            map[headX, headY] = new PartID(1, 4);
-                            headX++;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 0);
+                            map[HeadX, HeadY] = new PartID(1, 4);
+                            HeadX++;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 0);
                             break;
                         default:
-                            map[headX, headY] = new PartID(1, 1);
-                            headY--;
-                            crash = map[headX, headY].valid;
-                            map[headX, headY] = new PartID(0, 3);
+                            map[HeadX, HeadY] = new PartID(1, 1);
+                            HeadY--;
+                            crash = map[HeadX, HeadY].valid;
+                            map[HeadX, HeadY] = new PartID(0, 3);
                             break;
                     }
                     break;
@@ -263,69 +263,69 @@ namespace ClashOfSnakes
         /// <summary>
         /// Moves tail
         /// </summary>
-        private void moveTail()
+        private void MoveTail()
         {
-            int oldtailX = tailX;
-            int oldtailY = tailY;
-            switch (map[tailX, tailY].y)
+            int oldtailX = TailX;
+            int oldtailY = TailY;
+            switch (map[TailX, TailY].y)
             {
                 case 0: //body is to the right from the tail
-                    tailX++;
-                    switch (map[tailX, tailY].y)
+                    TailX++;
+                    switch (map[TailX, TailY].y)
                     {
                         case 0:
-                            map[tailX, tailY] = new PartID(2, 0);
+                            map[TailX, TailY] = new PartID(2, 0);
                             break;
                         case 2:
-                            map[tailX, tailY] = new PartID(2, 3);
+                            map[TailX, TailY] = new PartID(2, 3);
                             break;
                         case 5:
-                            map[tailX, tailY] = new PartID(2, 1);
+                            map[TailX, TailY] = new PartID(2, 1);
                             break;
                     }
                     break;
                 case 1: //body is below the tail
-                    tailY++;
-                    switch (map[tailX, tailY].y)
+                    TailY++;
+                    switch (map[TailX, TailY].y)
                     {
                         case 1:
-                            map[tailX, tailY] = new PartID(2, 1);
+                            map[TailX, TailY] = new PartID(2, 1);
                             break;
                         case 2:
-                            map[tailX, tailY] = new PartID(2, 2);
+                            map[TailX, TailY] = new PartID(2, 2);
                             break;
                         case 3:
-                            map[tailX, tailY] = new PartID(2, 0);
+                            map[TailX, TailY] = new PartID(2, 0);
                             break;
                     }
                     break;
                 case 2: //body is to the left from the tail
-                    tailX--;
-                    switch (map[tailX, tailY].y)
+                    TailX--;
+                    switch (map[TailX, TailY].y)
                     {
                         case 0:
-                            map[tailX, tailY] = new PartID(2, 2);
+                            map[TailX, TailY] = new PartID(2, 2);
                             break;
                         case 3:
-                            map[tailX, tailY] = new PartID(2, 3);
+                            map[TailX, TailY] = new PartID(2, 3);
                             break;
                         case 4:
-                            map[tailX, tailY] = new PartID(2, 1);
+                            map[TailX, TailY] = new PartID(2, 1);
                             break;
                     }
                     break;
                 case 3: //body is above the tail
-                    tailY--;
-                    switch (map[tailX, tailY].y)
+                    TailY--;
+                    switch (map[TailX, TailY].y)
                     {
                         case 1:
-                            map[tailX, tailY] = new PartID(2, 3);
+                            map[TailX, TailY] = new PartID(2, 3);
                             break;
                         case 4:
-                            map[tailX, tailY] = new PartID(2, 0);
+                            map[TailX, TailY] = new PartID(2, 0);
                             break;
                         case 5:
-                            map[tailX, tailY] = new PartID(2, 2);
+                            map[TailX, TailY] = new PartID(2, 2);
                             break;
                     }
                     break;
@@ -334,6 +334,9 @@ namespace ClashOfSnakes
             map[oldtailX, oldtailY] = new PartID();
         }
 
+        /// <summary>
+        /// Data type used for indicating what part of a snake is on the particular place of the map.
+        /// </summary>
         struct PartID
         {
             public PartID(byte first, byte second)
@@ -347,11 +350,19 @@ namespace ClashOfSnakes
             public bool valid;
         }
     }
+
+    /// <summary>
+    /// There are currently two possibilities of snake color.
+    /// </summary>
     enum SnakeColor
     {
         green,
         red
     }
+
+    /// <summary>
+    /// The direction of the desired motion of the snake on the map.
+    /// </summary>
     enum Direction
     {
         right,

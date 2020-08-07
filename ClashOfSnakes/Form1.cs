@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -18,23 +17,23 @@ namespace ClashOfSnakes
         const int mapWidth = 1000;
         const int mapHeight = 800;
         const int blockEdge = 20;
-        Button connect;
+        Button connect; //control buttons
         Button create;
         Button single;
-        Label L1;
+        Label L1; //labels with scores
         Label L2;
-        Label info;
-        TextBox addr;
+        Label info; //label with generec informations about the program
+        TextBox addr; //textbox for the challengers IP address
         readonly Bitmap ground = Properties.Resources.ground;
         SinglePGame game;
-        Direction directionA;
-        Direction directionB;
-        Timer t1;
-        whoAmI me;
-        bool connectionFail;
-        bool multi;
-        int receivedSeed;
-        bool dontChangeDirection;
+        Direction directionA; //desired direction of the playerAs motion
+        Direction directionB; //desired direction of the playerBs motion
+        Timer t1; //main game timer
+        WhoAmI me; //tells who is the local player
+        bool connectionFail; //tells if the connection failed
+        bool multi; //tells if the game is in multiplayer mode
+        int receivedSeed; //stores the received seed
+        bool dontChangeDirection; //blocks the local player from changing his keyboard input
         Networking net;
 
         public GameWindow()
@@ -46,7 +45,7 @@ namespace ClashOfSnakes
         /// Paints ground
         /// </summary>
         /// <param name="gr"></param>
-        private void makeGround(Graphics gr)
+        private void MakeGround(Graphics gr)
         {
             ground.SetResolution(gr.DpiX, gr.DpiY);
             for (int i = 0; i < mapWidth / blockEdge; i++)
@@ -61,7 +60,7 @@ namespace ClashOfSnakes
         /// <summary>
         /// Makes buttons, labels, textbox, timers, ... Used for inicialization.
         /// </summary>
-        private void makeUI()
+        private void MakeUI()
         {
             connect = new Button();
             create = new Button();
@@ -69,9 +68,9 @@ namespace ClashOfSnakes
             connect.Click += Connect_Click;
             create.Click += Create_Click;
             single.Click += Single_Click;
-            configButton(connect);
-            configButton(create);
-            configButton(single);
+            ConfigButton(connect);
+            ConfigButton(create);
+            ConfigButton(single);
             connect.Text = "Connect";
             connect.Location = new Point(680, 830);
             Controls.Add(connect);
@@ -83,12 +82,12 @@ namespace ClashOfSnakes
             Controls.Add(single);
 
             L1 = new Label();
-            configLabel(L1);
+            ConfigLabel(L1);
             L1.Location = new Point(20, 825);
             L1.ForeColor = Color.Green;
             Controls.Add(L1);
             L2 = new Label();
-            configLabel(L2);
+            ConfigLabel(L2);
             L2.Location = new Point(170, 825);
             L2.ForeColor = Color.Red;
             Controls.Add(L2);
@@ -119,7 +118,7 @@ namespace ClashOfSnakes
         /// Configures common properties of a button
         /// </summary>
         /// <param name="b">The button to be configured</param>
-        private void configButton(Button b)
+        private void ConfigButton(Button b)
         {
             b.Height = 40;
             b.Width = 80;
@@ -131,7 +130,7 @@ namespace ClashOfSnakes
         /// Configures common properties of a label
         /// </summary>
         /// <param name="l">The label to be configured</param>
-        private void configLabel(Label l)
+        private void ConfigLabel(Label l)
         {
             l.Font = new Font("Arial", 40);
             l.Height = 60;
@@ -146,7 +145,7 @@ namespace ClashOfSnakes
         /// <param name="e"></param>
         private void Reset()
         {
-            DialogResult a = MessageBox.Show("Game Over!", "Clash Of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            MessageBox.Show("Game Over!", "Clash Of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             directionA = Direction.right;
             directionB = Direction.left;
             L1.Text = "0";
@@ -200,10 +199,10 @@ namespace ClashOfSnakes
             dontChangeDirection = true;
             if (multi)
             {
-                writeNet();
+                WriteNet();
                 try
                 {
-                    await readNetAsync();
+                    await ReadNetAsync();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -216,26 +215,26 @@ namespace ClashOfSnakes
         /// <summary>
         /// Sends out to netword data about current local move.
         /// </summary>
-        private void writeNet()
+        private void WriteNet()
         {
             Direction tmp;
-            if (me == whoAmI.playerA) tmp = directionA;
+            if (me == WhoAmI.playerA) tmp = directionA;
             else tmp = directionB;
             try
             {
                 switch (tmp)
                 {
                     case Direction.up:
-                        net.dataOut.WriteLine("w");
+                        net.DataOut.WriteLine("w");
                         break;
                     case Direction.left:
-                        net.dataOut.WriteLine("a");
+                        net.DataOut.WriteLine("a");
                         break;
                     case Direction.down:
-                        net.dataOut.WriteLine("s");
+                        net.DataOut.WriteLine("s");
                         break;
                     case Direction.right:
-                        net.dataOut.WriteLine("d");
+                        net.DataOut.WriteLine("d");
                         break;
                 }
             }
@@ -248,12 +247,12 @@ namespace ClashOfSnakes
         /// <summary>
         /// Reads incoming data about move of the opponent asynchronously.
         /// </summary>
-        private async Task readNetAsync()
+        private async Task ReadNetAsync()
         {
             string s;
             try
             {
-                s = await net.dataIn.ReadLineAsync();
+                s = await net.DataIn.ReadLineAsync();
             }
             catch (IOException)
             {
@@ -262,7 +261,7 @@ namespace ClashOfSnakes
             }
 
             Direction tmp;
-            if (me == whoAmI.playerA) tmp = directionB;
+            if (me == WhoAmI.playerA) tmp = directionB;
             else tmp = directionA;
             switch (s)
             {
@@ -279,14 +278,14 @@ namespace ClashOfSnakes
                     tmp = Direction.right;
                     break;
             }
-            if (me == whoAmI.playerA) directionB = tmp;
+            if (me == WhoAmI.playerA) directionB = tmp;
             else directionA = tmp;
         }
 
         /// <summary>
         /// Sets the program for multiplayer as a server.
         /// </summary>
-        private void beginMultiplayer()
+        private void BeginMultiplayer()
         {
             L1.Text = "0"; //config UI
             L2.Text = "0";
@@ -300,7 +299,7 @@ namespace ClashOfSnakes
             Random r = new Random();
             int seed = r.Next();
             game = new MultiPGame(mapWidth, mapHeight, blockEdge, seed);
-            net.dataOut.WriteLine(seed);
+            net.DataOut.WriteLine(seed);
             multi = true;
             t1.Start();
             Invalidate();
@@ -327,7 +326,7 @@ namespace ClashOfSnakes
                 game = null;
                 directionA = Direction.right;
                 directionB = Direction.left;
-                me = whoAmI.playerB;
+                me = WhoAmI.playerB;
                 connectionFail = false;
                 multi = true;
                 dontChangeDirection = false;
@@ -342,7 +341,7 @@ namespace ClashOfSnakes
                     try
                     {
                         await net.ConnectToChallengerAsync(ad);
-                        receivedSeed = int.Parse(net.dataIn.ReadLine());                        
+                        receivedSeed = int.Parse(net.DataIn.ReadLine());
                     }
                     catch (SocketException)
                     {
@@ -357,7 +356,7 @@ namespace ClashOfSnakes
                     catch (OperationCanceledException)
                     {
                         return;
-                    }                    
+                    }
                     BeginClienMultiplayer();
                 }
                 else info.Text = "Can not understand the address!";
@@ -372,7 +371,7 @@ namespace ClashOfSnakes
             t1.Stop();
             game = new MultiPGame(mapWidth, mapHeight, blockEdge, receivedSeed);
             Invalidate();
-            me = whoAmI.playerB;
+            me = WhoAmI.playerB;
             multi = true;
             info.Visible = false;
             L1.Visible = true;
@@ -398,7 +397,7 @@ namespace ClashOfSnakes
             game = null;
             directionA = Direction.right;
             directionB = Direction.left;
-            me = whoAmI.playerA;
+            me = WhoAmI.playerA;
             connectionFail = false;
             multi = true;
             dontChangeDirection = false;
@@ -430,7 +429,7 @@ namespace ClashOfSnakes
                 info.Text = "Socket is busy!";
                 return;
             }
-            catch (OperationCanceledException) 
+            catch (OperationCanceledException)
             {
                 return;
             }
@@ -438,7 +437,7 @@ namespace ClashOfSnakes
             {
                 return;
             }
-            beginMultiplayer();
+            BeginMultiplayer();
         }
 
 
@@ -457,7 +456,7 @@ namespace ClashOfSnakes
             info.Visible = false;
             addr.Visible = false;
             directionA = Direction.right;
-            me = whoAmI.playerA;
+            me = WhoAmI.playerA;
             connectionFail = false;
             multi = false;
             dontChangeDirection = false;
@@ -478,7 +477,7 @@ namespace ClashOfSnakes
             ClientSize = new Size(mapWidth, mapHeight + 100);
             BackColor = Color.Black;
             Icon = Properties.Resources.icon;
-            makeUI();
+            MakeUI();
         }
 
         /// <summary>
@@ -488,7 +487,7 @@ namespace ClashOfSnakes
         /// <param name="e"></param>
         private void GameWindow_Paint(object sender, PaintEventArgs e)
         {
-            makeGround(e.Graphics);
+            MakeGround(e.Graphics);
             game?.Paint(e.Graphics);
         }
 
@@ -502,7 +501,7 @@ namespace ClashOfSnakes
             if (dontChangeDirection) return;
 
             Direction tmp;
-            if (me == whoAmI.playerA) tmp = directionA;
+            if (me == WhoAmI.playerA) tmp = directionA;
             else tmp = directionB;
 
             switch (e.KeyCode)
@@ -521,14 +520,14 @@ namespace ClashOfSnakes
                     break;
             }
 
-            if (me == whoAmI.playerA) directionA = tmp;
+            if (me == WhoAmI.playerA) directionA = tmp;
             else directionB = tmp;
         }
 
         /// <summary>
         /// Tells who is the local player. Singleplayer is playerA, server side multiplayer is playerA and client side multiplayer is playerB
         /// </summary>
-        enum whoAmI
+        enum WhoAmI
         {
             playerA,
             playerB
