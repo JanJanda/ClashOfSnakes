@@ -14,8 +14,7 @@ namespace ClashOfSnakes
 {
     public partial class GameWindow : Form
     {
-        const int delay = 180; //constants for game configuration
-        const int read = 20;
+        const int delay = 200; //constants for game configuration
         const int mapWidth = 1000;
         const int mapHeight = 800;
         const int blockEdge = 20;
@@ -112,6 +111,7 @@ namespace ClashOfSnakes
             Controls.Add(info);
 
             t1 = new Timer();
+            t1.Interval = delay;
             t1.Tick += T1_Tick;
         }
 
@@ -159,6 +159,9 @@ namespace ClashOfSnakes
             Invalidate();
         }
 
+        /// <summary>
+        /// Makes one move of the game. Usable for multiplayer as well as singleplayer. Displays concurrent score of a player or both players.
+        /// </summary>
         private void Game_Move()
         {
             if (connectionFail)
@@ -187,7 +190,7 @@ namespace ClashOfSnakes
         }
 
         /// <summary>
-        /// Multiplayer game timer. Takes care of network communication
+        /// Game timer. Takes care of network communication. Asynchronously reads network.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -243,7 +246,7 @@ namespace ClashOfSnakes
         }
 
         /// <summary>
-        /// Reads incoming data about move of the opponent.
+        /// Reads incoming data about move of the opponent asynchronously.
         /// </summary>
         private async Task readNetAsync()
         {
@@ -299,13 +302,12 @@ namespace ClashOfSnakes
             game = new MultiPGame(mapWidth, mapHeight, blockEdge, seed);
             net.dataOut.WriteLine(seed);
             multi = true;
-            t1.Interval = delay;
             t1.Start();
             Invalidate();
         }
 
         /// <summary>
-        /// Connect button click event handeler. Initiates client connection to a game server.
+        /// Connect button click event handeler. Initiates client connection to a game server asynchronously.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -362,6 +364,9 @@ namespace ClashOfSnakes
             }
         }
 
+        /// <summary>
+        /// Begins multiplayer as a client. Sets the program for multiplayer game as playerB.
+        /// </summary>
         private void BeginClienMultiplayer()
         {
             t1.Stop();
@@ -372,12 +377,11 @@ namespace ClashOfSnakes
             info.Visible = false;
             L1.Visible = true;
             L2.Visible = true;
-            t1.Interval = delay;
             t1.Start();
         }
 
         /// <summary>
-        /// Handles the Create multiplayer button click event ant initiates process of creating a game as a server.
+        /// Handles the Create multiplayer button click event ant initiates process of creating a game as a server asynchronously.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -414,7 +418,7 @@ namespace ClashOfSnakes
                 opt = "";
                 foreach (string s in ipv4addrs) opt += s;
             }
-            Task.Run(() => MessageBox.Show(preamble + opt, "Clash of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Information));
+            Task.Run(() => MessageBox.Show(preamble + opt, "Clash of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Information)); //No need to wait for the completion of this task. Ignore possible warnings.
 
             info.Text = "Waiting for opponent...";
             try
@@ -457,7 +461,6 @@ namespace ClashOfSnakes
             connectionFail = false;
             multi = false;
             dontChangeDirection = false;
-            t1.Interval = delay;
 
             Random r = new Random();
             game = new SinglePGame(mapWidth, mapHeight, blockEdge, r.Next());

@@ -20,15 +20,23 @@ namespace ClashOfSnakes
         public StreamReader dataIn { get; private set; }
         bool connectFinished;
 
+        /// <summary>
+        /// Releases all resources used by this instance of networking.
+        /// </summary>
         public void RenewAll()
         {
             cts?.Cancel();
             dataIn?.Dispose();
             dataOut?.Dispose();
-            if (connectFinished) client?.Close();
+            if (connectFinished) client?.Close(); //needs to be closed depending on assynchronous attempt for a connection
             listener?.Stop();
         }
 
+
+        /// <summary>
+        /// Creates a server and accepts the first opponent, that connects to it asynchronously.
+        /// </summary>
+        /// <returns></returns>
         public async Task AcceptOpponentAsync()
         {
             cts = new CancellationTokenSource();
@@ -46,6 +54,11 @@ namespace ClashOfSnakes
             dataOut.AutoFlush = true;                 
         }
 
+        /// <summary>
+        /// Connects to a listening game server asynchronously.
+        /// </summary>
+        /// <param name="adr">The IP address of the listening game server</param>
+        /// <returns></returns>
         public async Task ConnectToChallengerAsync(IPAddress adr)
         {
             cts = new CancellationTokenSource();
@@ -67,6 +80,10 @@ namespace ClashOfSnakes
             dataOut.AutoFlush = true;
         }
 
+        /// <summary>
+        /// Creates a list of usable IP addresses of this computer.
+        /// </summary>
+        /// <returns>The list of this computers usable IP addresses</returns>
         public IEnumerable<string> MyAddresses()
         {
             IPAddress[] options = Dns.GetHostAddresses(Dns.GetHostName()); //show available addresses of this computer
