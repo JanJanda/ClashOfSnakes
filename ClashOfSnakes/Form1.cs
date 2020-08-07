@@ -334,7 +334,7 @@ namespace ClashOfSnakes
                     {
                         return;
                     }
-                    BeginClienMultiplayer(receivedSeed);
+                    BeginClientMultiplayer(receivedSeed);
                 }
                 else info.Text = "Can not understand the address!";
             }
@@ -343,7 +343,7 @@ namespace ClashOfSnakes
         /// <summary>
         /// Begins multiplayer as a client. Sets the program for multiplayer game as playerB.
         /// </summary>
-        private void BeginClienMultiplayer(int receivedSeed)
+        private void BeginClientMultiplayer(int receivedSeed)
         {
             t1.Stop();
             game = new MultiPGame(mapWidth, mapHeight, blockEdge, receivedSeed);
