@@ -30,9 +30,7 @@ namespace ClashOfSnakes
         SinglePGame game;
         Direction directionA;
         Direction directionB;
-        bool validMessage;
         Timer t1;
-        Timer t2;
         whoAmI me;
         bool connectionFail;
         bool multi;
@@ -115,9 +113,6 @@ namespace ClashOfSnakes
 
             t1 = new Timer();
             t1.Tick += T1_Tick;
-
-            t2 = new Timer();
-            t2.Tick += T2_Tick;
         }
 
         /// <summary>
@@ -159,18 +154,12 @@ namespace ClashOfSnakes
             if (game != null)
             {
                 game.Reset();
-                if (multi) t2.Start();
-                else t1.Start();
+                t1.Start();
             }
             Invalidate();
         }
 
-        /// <summary>
-        /// Main game timer. Makes game move
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void T1_Tick(object sender, EventArgs e)
+        private void Game_Move()
         {
             if (connectionFail)
             {
@@ -178,32 +167,23 @@ namespace ClashOfSnakes
                 L2.Visible = false;
                 info.Text = "Connection lost!";
                 info.Visible = true;
-                t1.Stop();
                 return;
             }
-            if (!validMessage)
-            {
-                return;
-            }
+            if (game == null) return;
 
-            Scores sc = game?.MakeMove(directionA, directionB) ?? new Scores();
+            Scores sc = game.MakeMove(directionA, directionB);
             dontChangeDirection = false;
             L1.Text = sc.A.ToString();
             L2.Text = sc.B.ToString();
             Invalidate();
+
             if (sc.gameOver)
             {
-                t1.Stop();
                 Reset();
                 return;
             }
 
-            if (multi)
-            {
-                validMessage = false;
-                t1.Stop();
-                t2.Start();
-            }
+            t1.Start();
         }
 
         /// <summary>
@@ -211,13 +191,23 @@ namespace ClashOfSnakes
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void T2_Tick(object sender, EventArgs e)
+        private async void T1_Tick(object sender, EventArgs e)
         {
-            t2.Stop();
+            t1.Stop();
             dontChangeDirection = true;
-            writeNet();
-            readNetAsync();
-            t1.Start(); // MISTO DVOU CASOVACU POUZIT ASYNC
+            if (multi)
+            {
+                writeNet();
+                try
+                {
+                    await readNetAsync();
+                }
+                catch (ObjectDisposedException)
+                {
+                    return;
+                }
+            }
+            Game_Move();
         }
 
         /// <summary>
@@ -255,7 +245,7 @@ namespace ClashOfSnakes
         /// <summary>
         /// Reads incoming data about move of the opponent.
         /// </summary>
-        private async void readNetAsync()
+        private async Task readNetAsync()
         {
             string s;
             try
@@ -288,7 +278,6 @@ namespace ClashOfSnakes
             }
             if (me == whoAmI.playerA) directionB = tmp;
             else directionA = tmp;
-            validMessage = true;
         }
 
         /// <summary>
@@ -304,17 +293,14 @@ namespace ClashOfSnakes
             addr.Visible = false;
             directionA = Direction.right;
             directionB = Direction.left;
-            validMessage = false;
 
             Random r = new Random();
             int seed = r.Next();
             game = new MultiPGame(mapWidth, mapHeight, blockEdge, seed);
             net.dataOut.WriteLine(seed);
             multi = true;
-            t1.Interval = read;
-            t1.Stop();
-            t2.Interval = delay;
-            t2.Start();
+            t1.Interval = delay;
+            t1.Start();
             Invalidate();
         }
 
@@ -328,7 +314,6 @@ namespace ClashOfSnakes
             if (!addr.Visible)
             {
                 t1.Stop(); //config UI
-                t2.Stop();
                 net?.RenewAll();
                 net = new Networking();
                 L1.Visible = false;
@@ -340,7 +325,6 @@ namespace ClashOfSnakes
                 game = null;
                 directionA = Direction.right;
                 directionB = Direction.left;
-                validMessage = false;
                 me = whoAmI.playerB;
                 connectionFail = false;
                 multi = true;
@@ -381,7 +365,6 @@ namespace ClashOfSnakes
         private void BeginClienMultiplayer()
         {
             t1.Stop();
-            t2.Stop();
             game = new MultiPGame(mapWidth, mapHeight, blockEdge, receivedSeed);
             Invalidate();
             me = whoAmI.playerB;
@@ -389,9 +372,8 @@ namespace ClashOfSnakes
             info.Visible = false;
             L1.Visible = true;
             L2.Visible = true;
-            t1.Interval = read;
-            t2.Interval = delay;
-            t2.Start();
+            t1.Interval = delay;
+            t1.Start();
         }
 
         /// <summary>
@@ -402,7 +384,6 @@ namespace ClashOfSnakes
         private async void Create_Click(object sender, EventArgs e)
         {
             t1.Stop(); //config UI
-            t2.Stop();
             net?.RenewAll();
             net = new Networking();
             L1.Visible = false;
@@ -413,7 +394,6 @@ namespace ClashOfSnakes
             game = null;
             directionA = Direction.right;
             directionB = Direction.left;
-            validMessage = false;
             me = whoAmI.playerA;
             connectionFail = false;
             multi = true;
@@ -466,7 +446,6 @@ namespace ClashOfSnakes
         private void Single_Click(object sender, EventArgs e)
         {
             t1.Stop(); //config UI
-            t2.Stop();
             net?.RenewAll();
             L1.Text = "0";
             L1.Visible = true;
@@ -474,12 +453,11 @@ namespace ClashOfSnakes
             info.Visible = false;
             addr.Visible = false;
             directionA = Direction.right;
-            validMessage = true;
             me = whoAmI.playerA;
             connectionFail = false;
             multi = false;
             dontChangeDirection = false;
-            t1.Interval = delay + read;
+            t1.Interval = delay;
 
             Random r = new Random();
             game = new SinglePGame(mapWidth, mapHeight, blockEdge, r.Next());
