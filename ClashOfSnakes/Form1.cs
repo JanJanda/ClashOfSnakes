@@ -32,7 +32,6 @@ namespace ClashOfSnakes
         WhoAmI me; //tells who is the local player
         bool connectionFail; //tells if the connection failed
         bool multi; //tells if the game is in multiplayer mode
-        int receivedSeed; //stores the received seed
         bool dontChangeDirection; //blocks the local player from changing his keyboard input
         Networking net;
 
@@ -283,29 +282,6 @@ namespace ClashOfSnakes
         }
 
         /// <summary>
-        /// Sets the program for multiplayer as a server.
-        /// </summary>
-        private void BeginMultiplayer()
-        {
-            L1.Text = "0"; //config UI
-            L2.Text = "0";
-            L1.Visible = true;
-            L2.Visible = true;
-            info.Visible = false;
-            addr.Visible = false;
-            directionA = Direction.right;
-            directionB = Direction.left;
-
-            Random r = new Random();
-            int seed = r.Next();
-            game = new MultiPGame(mapWidth, mapHeight, blockEdge, seed);
-            net.DataOut.WriteLine(seed);
-            multi = true;
-            t1.Start();
-            Invalidate();
-        }
-
-        /// <summary>
         /// Connect button click event handeler. Initiates client connection to a game server asynchronously.
         /// </summary>
         /// <param name="sender"></param>
@@ -338,6 +314,7 @@ namespace ClashOfSnakes
                 if (IPAddress.TryParse(addr.Text, out IPAddress ad))
                 {
                     info.Text = "Connecting to " + ad.ToString() + "...";
+                    int receivedSeed;
                     try
                     {
                         await net.ConnectToChallengerAsync(ad);
@@ -357,7 +334,7 @@ namespace ClashOfSnakes
                     {
                         return;
                     }
-                    BeginClienMultiplayer();
+                    BeginClienMultiplayer(receivedSeed);
                 }
                 else info.Text = "Can not understand the address!";
             }
@@ -366,7 +343,7 @@ namespace ClashOfSnakes
         /// <summary>
         /// Begins multiplayer as a client. Sets the program for multiplayer game as playerB.
         /// </summary>
-        private void BeginClienMultiplayer()
+        private void BeginClienMultiplayer(int receivedSeed)
         {
             t1.Stop();
             game = new MultiPGame(mapWidth, mapHeight, blockEdge, receivedSeed);
@@ -440,6 +417,28 @@ namespace ClashOfSnakes
             BeginMultiplayer();
         }
 
+        /// <summary>
+        /// Sets the program for multiplayer as a server.
+        /// </summary>
+        private void BeginMultiplayer()
+        {
+            L1.Text = "0"; //config UI
+            L2.Text = "0";
+            L1.Visible = true;
+            L2.Visible = true;
+            info.Visible = false;
+            addr.Visible = false;
+            directionA = Direction.right;
+            directionB = Direction.left;
+
+            Random r = new Random();
+            int seed = r.Next();
+            game = new MultiPGame(mapWidth, mapHeight, blockEdge, seed);
+            net.DataOut.WriteLine(seed);
+            multi = true;
+            t1.Start();
+            Invalidate();
+        }
 
         /// <summary>
         /// Handles the Singleplayer button click event and creates new singleplayer game.
