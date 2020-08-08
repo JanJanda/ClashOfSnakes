@@ -140,8 +140,6 @@ namespace ClashOfSnakes
         /// <summary>
         /// Resets the current game.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private void Reset()
         {
             MessageBox.Show("Game Over!", "Clash Of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -334,6 +332,10 @@ namespace ClashOfSnakes
                     {
                         return;
                     }
+                    catch (ObjectDisposedException)
+                    {
+                        return;
+                    }
                     BeginClientMultiplayer(receivedSeed);
                 }
                 else info.Text = "Can not understand the address!";
@@ -343,6 +345,7 @@ namespace ClashOfSnakes
         /// <summary>
         /// Begins multiplayer as a client. Sets the program for multiplayer game as playerB.
         /// </summary>
+        /// <param name="receivedSeed">Received seed for creation of a game</param>
         private void BeginClientMultiplayer(int receivedSeed)
         {
             t1.Stop();
@@ -399,13 +402,22 @@ namespace ClashOfSnakes
             Task.Run(() => MessageBox.Show(preamble + opt, "Clash of Snakes", MessageBoxButtons.OK, MessageBoxIcon.Information)); //No need to wait for the completion of this task. Ignore possible warnings.
 
             info.Text = "Waiting for opponent...";
+            int seed;
             try
             {
                 await net.AcceptOpponentAsync();
+                Random rnd = new Random();
+                seed = rnd.Next();
+                await net.DataOut.WriteLineAsync(seed.ToString());
             }
             catch (SocketException)
             {
                 info.Text = "Socket is busy!";
+                return;
+            }
+            catch (IOException)
+            {
+                info.Text = "Connection lost!";
                 return;
             }
             catch (OperationCanceledException)
@@ -416,13 +428,14 @@ namespace ClashOfSnakes
             {
                 return;
             }
-            BeginMultiplayer();
+            BeginMultiplayer(seed);
         }
 
         /// <summary>
         /// Sets the program for multiplayer as a server.
         /// </summary>
-        private void BeginMultiplayer()
+        /// <param name="seed">Seed for the creation of a game</param>
+        private void BeginMultiplayer(int seed)
         {
             L1.Text = "0"; //config UI
             L2.Text = "0";
@@ -433,10 +446,7 @@ namespace ClashOfSnakes
             directionA = Direction.right;
             directionB = Direction.left;
 
-            Random r = new Random();
-            int seed = r.Next();
             game = new MultiPGame(mapWidth, mapHeight, blockEdge, seed);
-            net.DataOut.WriteLine(seed);
             multi = true;
             t1.Start();
             Invalidate();
